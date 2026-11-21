@@ -520,7 +520,7 @@ int main()
 
 
     // TEXTURES
-    Texture menuTex, hubTex, quizTex, letterTex, btnTex;
+    Texture menuTex, hubTex, quizTex, letterTex, btnTex,guessTex,memTex,drawTex;
 
     if (!menuTex.loadFromFile("menu.png"))
         return -1;
