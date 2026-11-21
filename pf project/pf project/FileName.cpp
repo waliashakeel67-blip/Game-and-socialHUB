@@ -643,7 +643,7 @@ int main()
     lockCount.setFillColor(Color::White);
 
     Text drawMsg("", buttonFont, 30);
-    drawMsg.setFillColor(Color::White);
+    drawMsg.setFillColor(Color(255,240,190);
 
 
 
