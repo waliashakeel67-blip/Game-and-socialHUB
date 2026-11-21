@@ -1465,22 +1465,28 @@ auto layoutDrawingButtons = [&]()
             }
             else if (screen == 4)
             {
-                setBackground(background, hubTex);
-                setHeading(heading, "Guess the Word", 50);
-
-                startGuessGame();
+               setBackground(background, guessTex);
+               setHeading(heading, "Guess the Word", 70);
+               heading.setFillColor(Color(232, 238, 232));
+               heading.setOutlineColor(Color(15, 55, 38));
+                
+               startGuessGame();
             }
             else if (screen == 5)
             {
-                setBackground(background, hubTex);
-                setHeading(heading, "Memory Number", 50);
+                setBackground(background, memTex);
+                setHeading(heading, "Memory Number", 75);
+                heading.setFillColor(Color(255, 236, 170));
+                heading.setOutlineColor(Color(60, 10, 15));
 
                 startMemoryGame();
             }
             else if (screen == 6)
             {
-                setBackground(background, hubTex);
-                setHeading(heading, "Drawing Recreation", 50);
+               setBackground(background, drawTex);
+               setHeading(heading, "Drawing Recreation", 50);
+               heading.setPosition(heading.getPosition().x, 30.f); // making heading drawing recreation more towards top
+
 
                 startDrawingGame(true);
             }
