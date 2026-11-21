@@ -1244,7 +1244,7 @@ auto layoutMemoryButtons = [&]()
     int drawPhase = 0;
 
     Text drawLabel("", buttonFont, 22);
-    drawLabel.setFillColor(Color::White);
+    drawLabel.setFillColor(Color(255,232,170);
 
 
     // draw the buttons based on h curent state of the game
