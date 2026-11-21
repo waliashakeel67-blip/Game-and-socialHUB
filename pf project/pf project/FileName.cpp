@@ -1247,25 +1247,24 @@ auto layoutMemoryButtons = [&]()
     drawLabel.setFillColor(Color(255,232,170);
 
 
-    // draw the buttons based on h curent state of the game
-    auto layoutDrawingButtons = [&]()
-        {
-            bool allWon = wonGuess && wonMemory && wonDrawing;
-
-            if (drawPhase != 0)
-            {
-                setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 120, 505, 220, 60, 22);
-                setSmallButton(b2, t2, drawPhase == 1 ? "Play Again" : "Try Again", 380, 505, 220, 60, 22);
-            }
-            else
-            {
-                setSmallButton(b1, t1, "Check", 120, 505, 220, 60, 22);
-                setSmallButton(b2, t2, "Clear", 380, 505, 220, 60, 22);
-            }
-
-            setSmallButton(back, tBack, "Back", 640, 505, 220, 60, 22);
-        };
-
+    // draw the buttons based on curent state of the game
+auto layoutDrawingButtons = [&]()
+{
+    bool allWon = wonGuess && wonMemory && wonDrawing;
+ 
+    if (drawPhase != 0)
+    {
+        setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 150, 508, 200, 54, 20);
+        setSmallButton(b2, t2, drawPhase == 1 ? "Play Again" : "Try Again", 390, 508, 200, 54, 20);
+    }
+    else
+    {
+        setSmallButton(b1, t1, "Check", 150, 508, 200, 54, 20);
+        setSmallButton(b2, t2, "Clear", 390, 508, 200, 54, 20);
+    }
+ 
+    setSmallButton(back, tBack, "Back", 630, 508, 200, 54, 20);
+};
 
     // Starts a round of Drawing Recreation.
     // newPicture = true     a different random emoji
