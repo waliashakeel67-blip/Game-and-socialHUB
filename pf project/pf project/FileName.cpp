@@ -1096,10 +1096,10 @@ int main()
     Text gameUsed("", buttonFont, 25);
     Text gameMessage("", buttonFont, 28);
 
-    gameWord.setFillColor(Color::White);
-    gameChances.setFillColor(Color::White);
-    gameUsed.setFillColor(Color::White);
-    gameMessage.setFillColor(Color::White);
+    gameWord.setFillColor(Color(255,255,255);  // blanks white ivory
+    gameChances.setFillColor(Color(255,255,255);
+    gameUsed.setFillColor(Color(255,255,255);
+    gameMessage.setFillColor(Color(255,255,255); // type one letter and msgs
 
 
     // The words, and which letters are shown at the start
