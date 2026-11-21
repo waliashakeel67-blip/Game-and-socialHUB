@@ -2086,20 +2086,25 @@ auto layoutDrawingButtons = [&]()
             window.draw(drawLabel);
             // two grids
             for (int r = 0; r < DRAW_N; r++)
-            {
-                for (int c = 0; c < DRAW_N; c++)
-                {
-                    RectangleShape cell(Vector2f(DRAW_CELL - 2.f, DRAW_CELL - 2.f));
+{
+    for (int c = 0; c < DRAW_N; c++)
+    {
+        RectangleShape cell(Vector2f(DRAW_CELL - 2.f, DRAW_CELL - 2.f));
+        cell.setOutlineThickness(-1.5f);
+        cell.setOutlineColor(Color(120, 85, 50, 220));
 
-                    cell.setPosition(DRAW_X_TARGET + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
-                    cell.setFillColor(drawTarget[r][c] ? Color(255, 190, 0) : Color(230, 230, 230));
-                    window.draw(cell);
+        // left grid 
+        cell.setPosition(DRAW_X_TARGET + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
+        cell.setFillColor(drawTarget[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
+        window.draw(cell);
 
-                    cell.setPosition(DRAW_X_PLAYER + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
-                    cell.setFillColor(drawPlayer[r][c] ? Color::Red : Color(230, 230, 230));
-                    window.draw(cell);
-                }
-            }
+        // right grid
+        cell.setPosition(DRAW_X_PLAYER + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
+        cell.setFillColor(drawPlayer[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
+        window.draw(cell);
+    }
+}
+
             drawMsg.setString(drawMessage);
             centerText(drawMsg, 450);
             window.draw(drawMsg);
