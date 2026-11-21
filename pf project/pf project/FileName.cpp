@@ -1176,9 +1176,9 @@ auto layoutGuessButtons = [&]()
     Text memInfo("", buttonFont, 28);
     Text memMsg("", buttonFont, 28);
 
-    memNumber.setFillColor(Color::White);
-    memInfo.setFillColor(Color::White);
-    memMsg.setFillColor(Color::White);
+    memNumber.setFillColor(Color(255, 222, 110));
+    memInfo.setFillColor(Color(255, 222, 110));
+    memMsg.setFillColor(Color(255, 222, 110));
 
 
     // Places the Memory Number buttons depending on the state of the game
