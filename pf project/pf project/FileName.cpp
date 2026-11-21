@@ -2106,7 +2106,8 @@ auto layoutDrawingButtons = [&]()
 }
 
             drawMsg.setString(drawMessage);
-            centerText(drawMsg, 450);
+            fitText(drawMsg, 680.f, 23, 14); // sentennce b/w teo grids
+            centerText(drawMsg, 452);
             window.draw(drawMsg);
 
             drawButton(window, b1, btnTex, mouse);
