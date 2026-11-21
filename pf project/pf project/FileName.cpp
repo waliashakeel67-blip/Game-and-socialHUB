@@ -1182,22 +1182,22 @@ auto layoutGuessButtons = [&]()
 
 
     // Places the Memory Number buttons depending on the state of the game
-    auto layoutMemoryButtons = [&]()
-        {
-            if (memPhase >= 2)
-            {
-                bool allWon = wonGuess && wonMemory && wonDrawing;
-
-                setButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 100, 400);
-                setButton(b2, t2, memPhase == 2 ? "New Round" : "Try Again", 520, 400);
-                setButton(back, tBack, "Back", 310, 495);
-            }
-            else
-            {
-                setButton(b2, t2, "New Round", 100, 495);
-                setButton(back, tBack, "Back", 520, 495);
-            }
-        };
+auto layoutMemoryButtons = [&]()
+{
+    if (memPhase >= 2)
+    {
+        bool allWon = wonGuess && wonMemory && wonDrawing;
+        
+        setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 190, 400, 280, 62, 20);
+        setSmallButton(b2, t2, memPhase == 2 ? "New Round" : "Try Again", 510, 400, 280, 62, 20);
+        setSmallButton(back, tBack, "Back", 350, 490, 280, 62, 20);
+    }
+    else
+    {
+        setSmallButton(b2, t2, "New Round", 190, 505, 280, 62, 20);
+        setSmallButton(back, tBack, "Back", 510, 505, 280, 62, 20);
+    }
+};
 
 
     // Starts a new round of Memory Number
