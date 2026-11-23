@@ -1237,7 +1237,7 @@ auto layoutGuessButtons = [&]()
 
             for (int i = 0; i < (int)word.length(); i++)
             {
-                if (used.find(word[i]) != string::npos)
+                 if (hasChar(used, word[i]))
                     hidden += word[i];
                 else
                     hidden += '_';
@@ -1301,7 +1301,7 @@ auto layoutMemoryButtons = [&]()
                 if (n < 10)
                     memSequence += '0';
 
-                memSequence += to_string(n);
+               memSequence += intToString(n);
             }
 
             memTyped = "";
@@ -1749,11 +1749,11 @@ auto layoutDrawingButtons = [&]()
                 {
                     startGuessGame();
                 }
-                else if (!won && !lost && c < 128 && isalpha(c))
+               else if (!won && !lost && c < 128 && isLetter(c))
                 {
-                    char letter = (char)tolower(c);
+                    char letter = toLowerChar((char)c);
 
-                    if (used.find(letter) != string::npos)
+                    if (hasChar(used, letter))
                     {
                         guessMessage = "That letter was already tried or shown";
                     }
@@ -1761,7 +1761,7 @@ auto layoutDrawingButtons = [&]()
                     {
                         used += letter;
 
-                        if (word.find(letter) != string::npos)
+                        if (hasChar(word, letter))
                         {
                             for (int i = 0; i < (int)word.length(); i++)
                             {
@@ -1809,7 +1809,7 @@ auto layoutDrawingButtons = [&]()
                 {
                     if (c == 8 && !memTyped.empty())// Backspace
                     {
-                        memTyped.erase(memTyped.length() - 1);
+                        removeLast(memTyped);
                     }
                     else if (c >= '0' && c <= '9' && memTyped.length() < 8)
                     {
