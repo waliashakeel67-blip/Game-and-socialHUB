@@ -1033,13 +1033,13 @@ int main()
     auto loadQuestion = [&]()
         {
             quizInfo.setCharacterSize(INFO_SIZE);
-            quizInfo.setString("Question " + to_string(qIndex + 1) + " of " +
-                to_string(TOTAL_Q));
+            quizInfo.setString("Question " + intToString(qIndex + 1) + " of " +
+                intToString(TOTAL_Q));
             placeText(quizInfo, INFO_X, INFO_Y);
 
             int percent = (qIndex + 1) * 100 / TOTAL_Q;
             quizPercent.setCharacterSize(INFO_SIZE);
-            quizPercent.setString(to_string(percent) + "% Complete");
+            quizPercent.setString(intToString(percent) + "% Complete");
             FloatRect pb = quizPercent.getLocalBounds();
             quizPercent.setPosition(PERCENT_RIGHT - pb.width - pb.left, INFO_Y - pb.top);
 
@@ -1407,7 +1407,7 @@ auto layoutDrawingButtons = [&]()
             else
             {
                 drawPhase = 2;
-                drawMessage = "You lost Drawing Recreation! You matched " + to_string(matches) + " / " + to_string(GRID * GRID);
+                 drawMessage = "You lost Drawing Recreation! You matched " + intToString(matches) + " / " + intToString(GRID * GRID);
             }
 
             layoutDrawingButtons();
@@ -2079,9 +2079,8 @@ auto layoutDrawingButtons = [&]()
             }
 
             centerText(lockMsg, 230);
-            window.draw(lockMsg);
-
-            lockCount.setString("Games won: " + to_string(winsCount) + " / 3");
+            window.draw(lockMsg);  
+            lockCount.setString("Games won: " + intToString(winsCount) + " / 3");
             centerText(lockCount, 290);
             window.draw(lockCount);
 
@@ -2096,7 +2095,7 @@ auto layoutDrawingButtons = [&]()
             centerText(gameWord, 160);
             window.draw(gameWord);
 
-            gameChances.setString("Chances left: " + to_string(chances));
+            gameChances.setString("Chances left: " + intToString(chances));
             centerText(gameChances, 250);
             window.draw(gameChances);
 
@@ -2128,7 +2127,7 @@ auto layoutDrawingButtons = [&]()
             {
                 int left = 5 - (int)memClock.getElapsedTime().asSeconds();
 
-                memInfo.setString("Remember this number! (" + to_string(left) + ")");
+                memInfo.setString("Remember this number! (" + intToString(left) + ")");
                 centerText(memInfo, 170);
                 window.draw(memInfo);
 
