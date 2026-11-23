@@ -1,13 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <string>
-#include <vector>
-#include <map>
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <cctype>
 
 using namespace sf;
 using namespace std;
@@ -22,6 +19,76 @@ const float SPARKLE_VOLUME = 8.f;     // wand sparkle sound, set to 0 to turn it
 
 
 // helper functions
+
+// Turns a number into text 
+string intToString(int n)
+{
+    if (n == 0)
+        return "0";
+
+    bool negative = false;
+
+    if (n < 0)
+    {
+        negative = true;
+        n = -n;
+    }
+
+    string result = "";
+
+    while (n > 0)
+    {
+        result = (char)('0' + n % 10) + result;
+        n = n / 10;
+    }
+
+    if (negative)
+        result = "-" + result;
+
+    return result;
+}
+
+
+// true if c is a letter 
+bool isLetter(int c)
+{
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+
+// makes a capital letter small 
+char toLowerChar(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return (char)(c + ('a' - 'A'));
+
+    return c;
+}
+
+
+// true if the letter c is somewhere inside s 
+bool hasChar(const string& s, char c)
+{
+    for (int i = 0; i < (int)s.length(); i++)
+    {
+        if (s[i] == c)
+            return true;
+    }
+
+    return false;
+}
+
+
+// deletes the last character of s 
+void removeLast(string& s)
+{
+    string result = "";
+
+    for (int i = 0; i < (int)s.length() - 1; i++)
+        result += s[i];
+
+    s = result;
+}
 
 
 void setButton(RectangleShape& box, Text& text, string words, float x, float y)
