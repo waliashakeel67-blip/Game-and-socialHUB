@@ -2021,7 +2021,9 @@ auto layoutDrawingButtons = [&]()
                     badge.setOutlineColor(Color(160, 100, 55));
                     window.draw(badge);
 
-                    letterText.setString(string(1, (char)('A' + i)));
+                     string letterStr = "";
+                    letterStr += (char)('A' + i);
+                    letterText.setString(letterStr);
                     letterText.setCharacterSize(20);
                     FloatRect lb = letterText.getLocalBounds();
                     letterText.setPosition(rowPos.x + 29.f - lb.width / 2.f - lb.left,
