@@ -272,10 +272,12 @@ const int GLOW_BLUR = 7;              // how far the light spreads
 const float GLOW_STRENGTH = 150.f;    // brightness of the glow, 0 to 255 
 
 // Blurs a grid of numbers between 0 and 1 (used once to build each glow picture)
-void blurGrid(vector<float>& g, int W, int H, int r)
+void blurGrid(float* g, int W, int H, int r)
 {
-    vector<float> tmp(g.size(), 0.f);
+    float* tmp = new float[W * H];
 
+    for (int i = 0; i < W * H; i++)
+        tmp[i] = 0.f;
     // horizontal pass
     for (int y = 0; y < H; y++)
     {
@@ -313,22 +315,34 @@ void blurGrid(vector<float>& g, int W, int H, int r)
             g[y * W + x] = sum / (2 * r + 1);
         }
     }
+ delete[] tmp;
 }
 
 
 // Builds a thin glow that follows the real shape of the button picture
 // (so it is the same width on the top, the bottom and the sides)
 // It is made once for each button size and then reused.
+const int GLOW_CACHE_SIZE = 10;       // how many different button sizes can be remembered
+
 Texture& getGlowTexture(Texture& tex, float w, float h)
 {
-    static map<long, Texture> cache;
+    static Texture cacheTex[GLOW_CACHE_SIZE];
+    static long cacheKey[GLOW_CACHE_SIZE];
+    static int cacheCount = 0;
 
     long key = (long)w * 10000L + (long)h;
 
-    map<long, Texture>::iterator it = cache.find(key);
+    for (int i = 0; i < cacheCount; i++)
+    {
+        if (cacheKey[i] == key)
+            return cacheTex[i];
+    }
 
-    if (it != cache.end())
-        return it->second;
+    // place for the new glow (if the list is full the last place is reused)
+    int slot = cacheCount;
+
+    if (slot >= GLOW_CACHE_SIZE)
+        slot = GLOW_CACHE_SIZE - 1;
 
     // the button is drawn 6 percent bigger while the mouse is over it
     float bw = w * 1.06f;
@@ -341,7 +355,10 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
     float sw = (float)src.getSize().x;
     float sh = (float)src.getSize().y;
 
-    vector<float> g(W * H, 0.f);
+      float* g = new float[W * H];
+
+    for (int i = 0; i < W * H; i++)
+        g[i] = 0.f;
 
     // copy the shape of the button (where it is solid and where it is see through)
     for (int y = 0; y < H; y++)
@@ -381,11 +398,16 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
         }
     }
 
-    cache[key].loadFromImage(img);
-    cache[key].setSmooth(true);
+  delete[] g;
 
-    return cache[key];
-}
+    cacheTex[slot].loadFromImage(img);
+    cacheTex[slot].setSmooth(true);
+    cacheKey[slot] = key;
+
+    if (cacheCount < GLOW_CACHE_SIZE)
+        cacheCount++;
+
+    return cacheTex[slot];
 
 
 // Buttons grow a little and glow when the mouse is over them
