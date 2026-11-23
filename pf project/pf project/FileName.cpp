@@ -408,7 +408,7 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
         cacheCount++;
 
     return cacheTex[slot];
-
+}
 
 // Buttons grow a little and glow when the mouse is over them
 void drawButton(RenderWindow& window, RectangleShape& box, Texture& tex, Vector2f mouse)
