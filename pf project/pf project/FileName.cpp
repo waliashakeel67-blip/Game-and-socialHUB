@@ -732,7 +732,7 @@ int main()
     lockCount.setFillColor(Color::White);
 
     Text drawMsg("", buttonFont, 30);
-    drawMsg.setFillColor(Color(255,240,190);
+    drawMsg.setFillColor(Color(255,240,190));
 
 
 
@@ -1185,10 +1185,10 @@ int main()
     Text gameUsed("", buttonFont, 25);
     Text gameMessage("", buttonFont, 28);
 
-    gameWord.setFillColor(Color(255,255,255);  // blanks white ivory
-    gameChances.setFillColor(Color(255,255,255);
-    gameUsed.setFillColor(Color(255,255,255);
-    gameMessage.setFillColor(Color(255,255,255); // type one letter and msgs
+    gameWord.setFillColor(Color(255,255,255));  // blanks white ivory
+    gameChances.setFillColor(Color(255,255,255));
+    gameUsed.setFillColor(Color(255,255,255));
+    gameMessage.setFillColor(Color(255,255,255)); // type one letter and msgs
 
 
     // The words, and which letters are shown at the start
@@ -1333,7 +1333,7 @@ auto layoutMemoryButtons = [&]()
     int drawPhase = 0;
 
     Text drawLabel("", buttonFont, 22);
-    drawLabel.setFillColor(Color(255,232,170);
+    drawLabel.setFillColor(Color(255,232,170));
 
 
     // draw the buttons based on curent state of the game
