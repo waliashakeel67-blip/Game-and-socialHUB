@@ -489,6 +489,14 @@ struct Spark
     float rot;
 };
 
+// Removes spark number index by moving the ones after it one place back
+void removeSpark(Spark arr[], int& count, int index)
+{
+    for (int j = index; j < count - 1; j++)
+        arr[j] = arr[j + 1];
+
+    count--;
+}
 
 // Draws a small 4-point star
 void drawStar(RenderWindow& window, Vector2f p, float r, Color c, float rot)
@@ -743,7 +751,9 @@ int main()
     wand.setOrigin(297.f, 1.f);        // the tip of the wand (top right of the picture)
     wand.setScale(-0.5f, 0.5f);         // 300px picture shown at 150px
 
-    vector<Spark> sparks;
+   const int MAX_SPARKS = 200;      // most sparkles that can be alive at once
+    Spark sparks[MAX_SPARKS];
+    int sparkCount = 0;
     Clock frameClock;
     float sparkTimer = 0.f;
     float totalTime = 0.f;
@@ -1901,21 +1911,25 @@ auto layoutDrawingButtons = [&]()
                 s.size = 3.f + (rand() % 40) / 10.f;
                 s.rot = (rand() % 100) / 50.f;
 
-                sparks.push_back(s);
+                if (sparkCount < MAX_SPARKS)
+                {
+                    sparks[sparkCount] = s;
+                    sparkCount++;
+                }
             }
         }
 
-        for (int i = 0; i < (int)sparks.size(); i++)
+        for (int i = 0; i < sparkCount; i++)
         {
             sparks[i].life -= dt;
             sparks[i].pos += sparks[i].vel * dt;
             sparks[i].vel.y += 40.f * dt;// drifts down slowly
         }
 
-        for (int i = (int)sparks.size() - 1; i >= 0; i--)
+        for (int i = sparkCount - 1; i >= 0; i--)
         {
             if (sparks[i].life <= 0.f)
-                sparks.erase(sparks.begin() + i);
+                removeSpark(sparks, sparkCount, i);
         }
 
         // DRAWING
@@ -2212,7 +2226,7 @@ auto layoutDrawingButtons = [&]()
         // WAND CURSOR 
         if (mouseInside)
         {
-            for (int i = 0; i < (int)sparks.size(); i++)
+             for (int i = 0; i < sparkCount; i++)
             {
                 float k = sparks[i].life / sparks[i].maxLife;     // 1 -> 0
                 Color c(255, 225, 140, (Uint8)(255 * k));
