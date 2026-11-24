@@ -1424,28 +1424,37 @@ auto layoutDrawingButtons = [&]()
         };
 
 
-    // Decides where (Next Game) goes=
+   // Decides where (Next Game) goes, following the order of the Game Hub menu:
+    // Guess the Word -> Drawing Recreation -> Memory Number -> back to Guess the Word
     // all 3 games won              Secret Letters
-    // another game not won         one of those (random if there are two)
+    // next game in the menu order that is not won yet (the current game is skipped)
     // nothing else to play         Game Hub
     auto pickNextScreen = [&](int current) -> int
         {
             if (wonGuess && wonMemory && wonDrawing)
                 return 3;
 
-            int choices[3];
-            int count = 0;
+            int order[3] = { 4, 6, 5 };
+            bool wonAlready[3] = { wonGuess, wonDrawing, wonMemory };
 
-            if (current != 4 && !wonGuess) { choices[count] = 4; count++; }
-            if (current != 5 && !wonMemory) { choices[count] = 5; count++; }
-            if (current != 6 && !wonDrawing) { choices[count] = 6; count++; }
+            int pos = 0;
 
-            if (count == 0)
-                return 1;
+            for (int i = 0; i < 3; i++)
+            {
+                if (order[i] == current)
+                    pos = i;
+            }
 
-            return choices[rand() % count];
+            for (int step = 1; step < 3; step++)
+            {
+                int k = (pos + step) % 3;
+
+                if (!wonAlready[k])
+                    return order[k];
+            }
+
+            return 1;
         };
-
 
     // Tells which button (if any) is under the point p used for the button sounds
     // 0 = nothing, 1 = b1, 2 = b2, 3 = b3, 4 = back, 10 = Sorting Hat, 20-23 = quiz answers
