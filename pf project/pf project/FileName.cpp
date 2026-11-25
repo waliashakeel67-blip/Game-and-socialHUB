@@ -764,7 +764,7 @@ int main()
      if (!guessTex.loadFromFile("guess.png"))
         return -1;
 
-    if (!memTex.loadFromFile("mem.png"))
+    if (!memTex.loadFromFile("memory.png"))
         return -1;
 
     if (!drawTex.loadFromFile("draw.png"))
