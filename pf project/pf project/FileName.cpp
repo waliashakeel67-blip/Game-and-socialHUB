@@ -1911,9 +1911,10 @@ scroll
             else if (screen == 3)
             {
                 setBackground(background, letterTex);
-                setHeading(heading, "Secret Letters", 80);
+               setHeading(heading, "Secret Letters", 80);
+ 
+                letterMode = 0;                 slBody = "";                 slPin = "";                 slMsg = "";                 slShown = "";                 layoutLetterScreen();
 
-                setButton(back, tBack, "Back", 310, 495);
             }
             else if (screen == 4)
             {
