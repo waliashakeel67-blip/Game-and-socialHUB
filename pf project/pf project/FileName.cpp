@@ -2329,16 +2329,18 @@ if (!slBody.empty())                             removeLast(slBody);
        window.clear();
  
         // writing and reading a letter use the scroll picture, everything else the normal background
-        bool allWonNow = wonGuess && wonMemory && wonDrawing;         bool onScroll = (screen == 3 && scrollOK && letterMode != 0);         bool onLocked = (screen == 3 && letterMode == 0 && !allWonNow);
+      
  
         if (onScroll)
             window.draw(scrollBg);          // writing, PIN and reading screens
         else if (onLocked)
             window.draw(lockedBg);          // menu while the 3 games are not all won
-        else
+       else
             window.draw(background);        // menu when unlocked = letters.png
+        bool allWonNow = wonGuess && wonMemory && wonDrawing;
+        bool onScroll = (screen == 3 && scrollOK && letterMode != 0);
+        bool onLocked = (screen == 3 && letterMode == 0 && !allWonNow);
 
-        window.draw(background);
 
         if (screen == 0)
         {
@@ -2558,7 +2560,9 @@ string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
             }
             else if (letterMode == 5)
             {
-                // reading a letter, directly on the scroll                 slText.setCharacterSize(SCROLL_FONT);
+                // reading a letter, directly on the scroll
+                slText.setCharacterSize(SCROLL_FONT);
+
                 slText.setString(wrapParagraphs(slShown, bodyFont, SCROLL_FONT, SCROLL_W));
                 placeText(slText, SCROLL_X, SCROLL_Y);
                 window.draw(slText);
