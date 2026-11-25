@@ -2046,9 +2046,61 @@ scroll
                 }
                 else if (screen == 3)
                 {
+                    bool allWon = wonGuess && wonMemory && wonDrawing;
+ 
                     if (isClicked(back, m))
-                        screen = 0;
+                    {
+                        if (letterMode == 0)
+                        {
+                            screen = 0;
+                        }
+                        else if (letterMode == 2)
+                        {
+                            letterMode = 1;     // go back to editing the letter
+                            slMsg = "";
+                        }                         else
+                        {
+                            letterMode = 0;                             slBody = "";                             slPin = "";                             slMsg = "";                             slShown = "";
+                        }
+ 
+                        if (screen == 3)
+                            layoutLetterScreen();
+                    }
+                    else if (letterMode == 0 && allWon && isClicked(b1, m))
+                    {
+                        // Write a Secret Letter
+                        letterMode = 1;                         slBody = "";                         slPin = "";                         slMsg = "";
+                        layoutLetterScreen();
+                    }
+                    else if (letterMode == 0 && !allWon && isClicked(b2, m))
+                    {
+                        // Read a Friend's Letter
+                        letterMode = 4;                         slPin = "";                         slMsg = "";
+                        layoutLetterScreen();
+                    }
+                    else if (letterMode == 1 && isClicked(b1, m))
+                    {
+                        if (slBody.empty())
+                        {
+                            slMsg = "Write something first";
+                        }                         else
+                        {
+                            letterMode = 2;                             slPin = "";                             slMsg = "";
+                            layoutLetterScreen();
+                        }
+                    }
+                    else if (letterMode == 1 && isClicked(b2, m))
+                    {
+                        // Read a Friend's Letter (from the writing screen)
+                        letterMode = 4;                         slBody = "";                         slPin = "";                         slMsg = "";
+                        layoutLetterScreen();
+                    }
+                    else if (letterMode == 2 && isClicked(b1, m))
+                    {
+                        trySaveLetter();
+                    }
                 }
+
                 else if (screen == 4)
                 {
                     if (isClicked(back, m))
