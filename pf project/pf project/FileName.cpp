@@ -264,137 +264,88 @@ void fitAnswer(Text& t, const string& s, const Font& font, float maxW, float max
             return;
     }
 }
-// ---------- SECRET LETTER HELPERS ----------
+// secret letters helpers
  
 const int MAX_LETTER = 300;                         // most characters in one letter
-const char* LETTER_FILE = "secret_letters.txt";     // the "notebook" where all letters are saved
+const char* LETTER_FILE = "secret_letters.txt";     // notpad where all letters are saved
  
  
 // Like wrapText, but keeps the player's own line breaks (Enter key)
 string wrapParagraphs(const string& s, const Font& font, int size, float maxW)
 {
-    string result = "";     string para = "";
- 
+    string result = "";
+    string para = "";
     for (int i = 0; i <= (int)s.length(); i++)
     {
         if (i == (int)s.length() || s[i] == '\n')
         {
             result += wrapText(para, font, size, maxW);
+            if (i != (int)s.length())
+                result += "\n";
  
-            if (i != (int)s.length())                 result += "\n";
-para = "";
-        }         else
-        {
-            para += s[i];
-        }
-    }
- 
-    return result;
-}
- 
- 
-// A letter is saved on ONE line of the file, so a line break is saved as the two characters \n
-string encodeLetter(const string& s)
-{
-    string r = "";
- 
-    for (int i = 0; i < (int)s.length(); i++)
-    {
-        if (s[i] == '\n')             r += "\\n";         else if (s[i] == '\\')             r += "\\\\";
-        else
-            r += s[i];
-    }
- 
-    return r;
-}
- 
- 
-// Turns the saved line back into the real letter
-string decodeLetter(const string& s)
-{
-    string r = "";
- 
-    for (int i = 0; i < (int)s.length(); i++)
-    {
-        if (s[i] == '\\' && i + 1 < (int)s.length())
-        {
-            if (s[i + 1] == 'n')
-            {
-                r += '\n';                 i++;
-            }
-            else if (s[i + 1] == '\\')
-            {
-                r += '\\';                 i++;
-            }             else
-            {
-                r += s[i];
-            }
-        }         else
-        {
-            r += s[i];
-        }
-    }
- 
-    return r;
-}
             para = "";
-        }         else
+        }
+        else
         {
             para += s[i];
         }
     }
- 
     return result;
 }
- 
- 
-// A letter is saved on ONE line of the file, so a line break is saved as the two characters \n
+// A letter is saved on one line of the file, so a line break is saved as the two characters \n
 string encodeLetter(const string& s)
 {
     string r = "";
- 
     for (int i = 0; i < (int)s.length(); i++)
     {
-        if (s[i] == '\n')             r += "\\n";         else if (s[i] == '\\')             r += "\\\\";
+        if (s[i] == '\n')
+        {
+            r += "\\n";
+        }
+        else if (s[i] == '\\')
+        {
+            r += "\\\\";
+        }
         else
+        {
             r += s[i];
+        }
     }
- 
     return r;
 }
- 
- 
 // Turns the saved line back into the real letter
 string decodeLetter(const string& s)
 {
     string r = "";
- 
     for (int i = 0; i < (int)s.length(); i++)
     {
         if (s[i] == '\\' && i + 1 < (int)s.length())
         {
             if (s[i + 1] == 'n')
             {
-                r += '\n';                 i++;
+                r += '\n';
+                i++;
             }
             else if (s[i + 1] == '\\')
             {
-                r += '\\';                 i++;
-            }             else
+                r += '\\';
+                i++;
+            }
+            else
             {
                 r += s[i];
             }
-        }         else
+        }
+        else
         {
             r += s[i];
         }
     }
- 
     return r;
 }
  
  
-// Looks in the file for a line that starts with the PIN.  Each line looks like:  1234|the letter
+// ts looks in the file for a line that starts with the pin.each line looks like ts :  1234|the letter
 // Returns true and puts the letter in out if it was found
 bool loadLetter(const string& pin, string& out)
 {
@@ -409,10 +360,10 @@ bool loadLetter(const string& pin, string& out)
         bool same = true;
  
         for (int i = 0; i < 4; i++)
-                    {
-            if (line[i] != pin[i])                 same = false;
+        {
+            if (line[i] != pin[i])
+                same = false;
         }
- 
         if (same)
         {
             string rest = "";
@@ -428,35 +379,18 @@ bool loadLetter(const string& pin, string& out)
     return false;
 }
  
- 
 // true if some letter already uses this PIN
 bool pinExists(const string& pin)
 {
     string dummy;
     return loadLetter(pin, dummy);
 }
-// true if some letter already uses this PIN
-bool pinExists(const string& pin)
-{
-    string dummy;
-    return loadLetter(pin, dummy);
-}
- 
- 
-// Adds a new line "PIN|letter" at the end of the file (the file is created if it is not there)
+// this adds a new line "PIN|letter" at the end of the file 
 void saveLetter(const string& pin, const string& text)
 {
     ofstream f(LETTER_FILE, ios::app);
     f << pin << "|" << encodeLetter(text) << "\n";
 }
-
-
- 
- 
-
- 
-
-
 // glowing of button
 
 
