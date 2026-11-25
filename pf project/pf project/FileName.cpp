@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include<fstream>
+#include <fstream>
 
 using namespace sf;
 using namespace std;
@@ -13,15 +13,18 @@ using namespace std;
 
 //settings
 
-const float CLICK_VOLUME = 60.f;      // 0 = silent, 100 = loudest
-const float HOVER_VOLUME = 25.f;      // set to 0 to turn the hover sound off
-// DELED SPRKLE
+const float CLICK_VOLUME = 8.f;      // 0 = silent, 100 = loudest
+const float HOVER_VOLUME = 2.f;      // the hover sound 
+// DELTED SPARKLE SOUD
+
+const float MUSIC_VOLUME = 20.f; // background music
 
 
 
 // helper functions
 
-// Turns a number into text 
+
+// Turns a number into text (own version of to_string)
 string intToString(int n)
 {
     if (n == 0)
@@ -50,7 +53,7 @@ string intToString(int n)
 }
 
 
-// true if c is a letter 
+// true if c is a letter (own version of isalpha)
 bool isLetter(int c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
@@ -67,7 +70,7 @@ char toLowerChar(char c)
 }
 
 
-// true if the letter c is somewhere inside s 
+// true if the letter c is somewhere inside s
 bool hasChar(const string& s, char c)
 {
     for (int i = 0; i < (int)s.length(); i++)
@@ -80,7 +83,7 @@ bool hasChar(const string& s, char c)
 }
 
 
-// deletes the last character of s 
+// deletes the last character of s
 void removeLast(string& s)
 {
     string result = "";
@@ -134,7 +137,7 @@ void setSmallButton(RectangleShape& box, Text& text, string words,
 }
 
 
-// A small button placed with 5 numbers: x, y, width, height, text size
+// A small button placed with 5 numbers x, y, width, height, text size
 void setButtonAt(RectangleShape& box, Text& text, string words, const float p[5])
 {
     setSmallButton(box, text, words, p[0], p[1], p[2], p[3], (int)p[4]);
@@ -235,6 +238,21 @@ string wrapText(const string& s, const Font& font, int size, float maxW)
         else
         {
             word += s[i];
+
+            // a single word wider than the paper: cut it and continue on the next line
+            test.setString(word);
+            if (test.getLocalBounds().width > maxW && word.length() > 1)
+            {
+                string last(1, word[word.length() - 1]);
+                word.erase(word.length() - 1);
+
+                if (!line.empty())
+                    result += line + "\n";
+
+                result += word + "\n";
+                line = "";
+                word = last;
+            }
         }
     }
 
@@ -264,25 +282,28 @@ void fitAnswer(Text& t, const string& s, const Font& font, float maxW, float max
             return;
     }
 }
+
 // secret letters helpers
- 
+
 const int MAX_LETTER = 300;                         // most characters in one letter
-const char* LETTER_FILE = "secret_letters.txt";     // notpad where all letters are saved
- 
- 
+const char* LETTER_FILE = "secret_letters.txt";     // the notebook where all letters are saved
+
+
 // Like wrapText, but keeps the player's own line breaks (Enter key)
 string wrapParagraphs(const string& s, const Font& font, int size, float maxW)
 {
     string result = "";
     string para = "";
+
     for (int i = 0; i <= (int)s.length(); i++)
     {
         if (i == (int)s.length() || s[i] == '\n')
         {
             result += wrapText(para, font, size, maxW);
+
             if (i != (int)s.length())
                 result += "\n";
- 
+
             para = "";
         }
         else
@@ -290,33 +311,35 @@ string wrapParagraphs(const string& s, const Font& font, int size, float maxW)
             para += s[i];
         }
     }
+
     return result;
 }
-// A letter is saved on one line of the file, so a line break is saved as the two characters \n
+
+
+// letter is saved on one line of the file, so a line break is saved as the two characters \n
 string encodeLetter(const string& s)
 {
     string r = "";
+
     for (int i = 0; i < (int)s.length(); i++)
     {
         if (s[i] == '\n')
-        {
             r += "\\n";
-        }
         else if (s[i] == '\\')
-        {
             r += "\\\\";
-        }
         else
-        {
             r += s[i];
-        }
     }
+
     return r;
 }
+
+
 // Turns the saved line back into the real letter
 string decodeLetter(const string& s)
 {
     string r = "";
+
     for (int i = 0; i < (int)s.length(); i++)
     {
         if (s[i] == '\\' && i + 1 < (int)s.length())
@@ -341,62 +364,69 @@ string decodeLetter(const string& s)
             r += s[i];
         }
     }
+
     return r;
 }
- 
- 
-// ts looks in the file for a line that starts with the pin.each line looks like ts :  1234|the letter
+
+
+// Looks in the file for a line that starts with the PIN.  Each line looks like:  1234|the letter
 // Returns true and puts the letter in out if it was found
 bool loadLetter(const string& pin, string& out)
 {
     ifstream f(LETTER_FILE);
     string line;
- 
+
     while (getline(f, line))
     {
         if (line.length() < 5 || line[4] != '|')
             continue;
- 
+
         bool same = true;
- 
+
         for (int i = 0; i < 4; i++)
         {
             if (line[i] != pin[i])
                 same = false;
         }
+
         if (same)
         {
             string rest = "";
- 
+
             for (int i = 5; i < (int)line.length(); i++)
                 rest += line[i];
- 
+
             out = decodeLetter(rest);
             return true;
         }
     }
- 
+
     return false;
 }
- 
+
+
 // true if some letter already uses this PIN
 bool pinExists(const string& pin)
 {
     string dummy;
     return loadLetter(pin, dummy);
 }
-// this adds a new line "PIN|letter" at the end of the file 
+
+
+// Adds a new line "PIN|letter" at the end of the file (the file is created if it is not there)
 void saveLetter(const string& pin, const string& text)
 {
     ofstream f(LETTER_FILE, ios::app);
     f << pin << "|" << encodeLetter(text) << "\n";
 }
+
+
 // glowing of button
 
 
-const int GLOW_REACH = 22;            // Sspcr aroound the button for light
-const int GLOW_BLUR = 7;              // HOWMUCH LIGHT SPREADS
-const float GLOW_STRENGTH = 150.f;    // brightness of the glow 
+const int GLOW_REACH = 22;            // room around the button for the glow (pixels)
+const int GLOW_BLUR = 7;              // how far the light spreads 
+const float GLOW_STRENGTH = 150.f;    // brightness of the glow
 
 // Blurs a grid of numbers between 0 and 1 (used once to build each glow picture)
 void blurGrid(float* g, int W, int H, int r)
@@ -405,6 +435,7 @@ void blurGrid(float* g, int W, int H, int r)
 
     for (int i = 0; i < W * H; i++)
         tmp[i] = 0.f;
+
     // horizontal pass
     for (int y = 0; y < H; y++)
     {
@@ -442,7 +473,8 @@ void blurGrid(float* g, int W, int H, int r)
             g[y * W + x] = sum / (2 * r + 1);
         }
     }
- delete[] tmp;
+
+    delete[] tmp;
 }
 
 
@@ -471,7 +503,6 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
     if (slot >= GLOW_CACHE_SIZE)
         slot = GLOW_CACHE_SIZE - 1;
 
-    // the button is drawn 6 percent bigger while the mouse is over it
     float bw = w * 1.06f;
     float bh = h * 1.06f;
 
@@ -482,7 +513,7 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
     float sw = (float)src.getSize().x;
     float sh = (float)src.getSize().y;
 
-      float* g = new float[W * H];
+    float* g = new float[W * H];
 
     for (int i = 0; i < W * H; i++)
         g[i] = 0.f;
@@ -525,7 +556,7 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
         }
     }
 
-  delete[] g;
+    delete[] g;
 
     cacheTex[slot].loadFromImage(img);
     cacheTex[slot].setSmooth(true);
@@ -537,30 +568,31 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
     return cacheTex[slot];
 }
 
-// Buttons grow a little and glow when the mouse is over them // GLOWING EFFECT FUNCTION
+
+// Buttons grow a little and glow when the mouse is over them
 void drawButton(RenderWindow& window, RectangleShape& box, Texture& tex, Vector2f mouse)
 {
     Sprite s(tex);
+
     float w = box.getSize().x;
     float h = box.getSize().y;
-    
+
     float sx = w / tex.getSize().x;
     float sy = h / tex.getSize().y;
 
-    if (box.getGlobalBounds().contains(mouse)) // CHECKS IF MOUSE CORDINATES ARE INSIDE BUTTON
+    if (box.getGlobalBounds().contains(mouse))
     {
-        // thin light around the edges 
-        Sprite glow(getGlowTexture(tex, w, h)); // CREATES GLOW
+        // thin light around the edges only added on top of the background
+        Sprite glow(getGlowTexture(tex, w, h));
         glow.setPosition(box.getPosition().x - w * 0.03f - GLOW_REACH,
             box.getPosition().y - h * 0.03f - GLOW_REACH);
-        
-        window.draw(glow, RenderStates(BlendAdd)); // DRAWS GLOW
-                                                   // BLEND ADD ( makes light blend with whats alr on scree)
+        window.draw(glow, RenderStates(BlendAdd));
 
-        s.setScale(sx * 1.06f, sy * 1.06f); // making button slightly bigger  6 prce
-        s.setPosition(box.getPosition().x - w * 0.03f, box.getPosition().y - h * 0.03f);
+        s.setScale(sx * 1.06f, sy * 1.06f);
+        s.setPosition(box.getPosition().x - w * 0.03f,
+            box.getPosition().y - h * 0.03f);
     }
-    else // normal size  normal ps no glow
+    else
     {
         s.setScale(sx, sy);
         s.setPosition(box.getPosition());
@@ -603,13 +635,52 @@ string makePairs(string s)
 }
 
 
+//sparkling of wand
 
+
+struct Spark
+{
+    Vector2f pos;
+    Vector2f vel;
+    float life;
+    float maxLife;
+    float size;
+    float rot;
+};
+
+
+// Removes spark number index by moving the ones after it one place back
+void removeSpark(Spark arr[], int& count, int index)
+{
+    for (int j = index; j < count - 1; j++)
+        arr[j] = arr[j + 1];
+
+    count--;
+}
+
+
+// Draws a small 4-point star
+void drawStar(RenderWindow& window, Vector2f p, float r, Color c, float rot)
+{
+    ConvexShape s(8);
+
+    for (int i = 0; i < 8; i++)
+    {
+        float a = rot + i * 3.14159265f / 4.0f;
+        float rad = (i % 2 == 0) ? r : r * 0.28f;
+        s.setPoint(i, Vector2f(cos(a) * rad, sin(a) * rad));
+    }
+
+    s.setPosition(p);
+    s.setFillColor(c);
+    window.draw(s, RenderStates(BlendAdd));
+}
 
 // DRAWING RECREATION PICTURES
 
 const int GRID = 8;   // number of boxes per row and per column
 
-// The 3 emoji pictures '#' = colored square, '.' = empty
+// The 3 emoji pictures. '#' = colored square, '.' = empty
 const char* pictures[3][GRID] = {
     { // Smiley
       "..####..",
@@ -662,11 +733,11 @@ int main()
     window.setMouseCursorVisible(false);      // the wand is the cursor
 
     srand((unsigned)time(0));
-    // The game always thinks in 1000x600. When the window is maximized,
-    // the view keeps the same shape, and
-    // mapPixelToCoords turns real mouse positions into game positions
+
+
     View view(FloatRect(0.f, 0.f, 1000.f, 600.f));
     window.setView(view);
+
     auto fixView = [&](unsigned winW, unsigned winH)
         {
             float windowRatio = (float)winW / (float)winH;
@@ -704,7 +775,7 @@ int main()
 
 
     // TEXTURES
-    Texture menuTex, hubTex, quizTex, letterTex, btnTex,guessTex,memTex,drawTex;
+    Texture menuTex, hubTex, quizTex, letterTex, btnTex, guessTex, memTex, drawTex;
 
     if (!menuTex.loadFromFile("menu.png"))
         return -1;
@@ -721,54 +792,48 @@ int main()
 
     if (!btnTex.loadFromFile("button.png"))
         return -1;
-     if (!guessTex.loadFromFile("guess.png"))
+    if (!guessTex.loadFromFile("guess.png"))
         return -1;
-
     if (!memTex.loadFromFile("memory.png"))
         return -1;
-
     if (!drawTex.loadFromFile("draw.png"))
         return -1;
-
     btnTex.setSmooth(true);
-    // the scroll picture: the paper the secret letter is written and read on (1000 x 600)
-    // if scroll.png is missing the game still runs and uses the normal letters.png background
+
+    // the scroll picture: the paper the secret letter is WRITTEN on
     Texture scrollTex;
     Sprite scrollBg;
     bool scrollOK = scrollTex.loadFromFile("scroll.png");
- 
+
     if (scrollOK)
     {
         scrollTex.setSmooth(true);
         setBackground(scrollBg, scrollTex);
     }
- 
-    // the "locked" picture: shown on the Secret Letters menu until all 3 games are won
-    // (if locked.png is missing, the main menu picture is used instead)
-    Texture lockedTex;
-    Sprite lockedBg;
-    bool lockedOK = lockedTex.loadFromFile("locked.png");
-    if (lockedOK)
+
+    // the Secret Letters menu picture that is shown ONLY when the player has won all 3 games
+
+    Texture menuLetterTex;
+    Sprite menuLetterBg;
+    bool menuLetterOK = false;
+
+    const string IF_WIN_FILES[4] = { "ifwinletters.jpeg", "ifwinletters.jpeg", "ifwinletters.jpeg", "ifwinletters.jpeg" };
+
+    for (int i = 0; i < 4 && !menuLetterOK; i++)
+        menuLetterOK = menuLetterTex.loadFromFile(IF_WIN_FILES[i]);
+
+    if (menuLetterOK)
     {
-        lockedTex.setSmooth(true);
-        setBackground(lockedBg, lockedTex);
-    }    
-    else
-    {
-        setBackground(lockedBg, menuTex);
+        menuLetterTex.setSmooth(true);
+        setBackground(menuLetterBg, menuLetterTex);
     }
-
-
 
     // Quiz pictures
     Texture hatTex, hatGlowTex, wandTex;
 
-    if (!hatTex.loadFromFile("hat.png")) 
-        return -1;
-    if (!hatGlowTex.loadFromFile("hat_glow.png")) 
-        return -1;
-    if (!wandTex.loadFromFile("wand.png")) 
-        return -1;
+    if (!hatTex.loadFromFile("hat.png")) return -1;
+    if (!hatGlowTex.loadFromFile("hat_glow.png")) return -1;
+    if (!wandTex.loadFromFile("wand.png")) return -1;
 
     hatTex.setSmooth(true);
     hatGlowTex.setSmooth(true);
@@ -776,11 +841,12 @@ int main()
 
     // houses: 0 = Gryffindor, 1 = Slytherin, 2 = Ravenclaw, 3 = Hufflepuff
     string houseFile[4] = { "gryffindor", "slytherin", "ravenclaw", "hufflepuff" };
+
     Texture crestBig[4];
+
     for (int i = 0; i < 4; i++)
     {
-        if (!crestBig[i].loadFromFile("crest_" + houseFile[i] + ".png")) 
-            return -1;
+        if (!crestBig[i].loadFromFile("crest_" + houseFile[i] + ".png")) return -1;
 
         crestBig[i].setSmooth(true);
     }
@@ -790,7 +856,7 @@ int main()
     Text heading("", titleFont, 60);
 
 
-    // BUTTON SOUNDS // have not ye downloaded /seleced button sounds will complete later
+    // BUTTON SOUNDS 
     SoundBuffer clickBuf, hoverBuf;
     Sound clickSound, hoverSound;
 
@@ -800,11 +866,24 @@ int main()
     {
         clickSound.setBuffer(clickBuf);
         hoverSound.setBuffer(hoverBuf);
+
         clickSound.setVolume(CLICK_VOLUME);
         hoverSound.setVolume(HOVER_VOLUME);
     }
+
     int lastHover = 0;      // which button the mouse was over in the last frame
+
+
+    
     Vector2f prevMouse(0.f, 0.f);
+    // background music plays all time
+    Music bgMusic;
+    if (bgMusic.openFromFile("music.ogg"))
+    {
+        bgMusic.setLoop(true);
+        bgMusic.setVolume(MUSIC_VOLUME);
+        bgMusic.play();
+    }
 
 
     // BUTTONS (b1, b2, b3 are used differently on each screen)
@@ -815,7 +894,7 @@ int main()
     Text tBack("", buttonFont, 22);
 
 
-    // screen numbers
+    // scree numbers
     // 0 = Main Menu
     // 1 = Game Hub
     // 2 = House Quiz
@@ -839,21 +918,24 @@ int main()
     lockCount.setFillColor(Color::White);
 
     Text drawMsg("", buttonFont, 30);
-    drawMsg.setFillColor(Color(255,240,190));
+    drawMsg.setFillColor(Color(255, 240, 190));
 
 
 
-   // wand cursor
+    // wand cursor plus sparkles
 
 
     Sprite wand(wandTex);
     wand.setOrigin(297.f, 1.f);        // the tip of the wand (top right of the picture)
-    wand.setScale(-0.5f, 0.5f);         
+    wand.setScale(-0.5f, 0.5f);         // 300px picture shown at 150px
 
+    const int MAX_SPARKS = 200;      // most sparkles that can be alive at once
+    Spark sparks[MAX_SPARKS];
+    int sparkCount = 0;
     Clock frameClock;
+    float sparkTimer = 0.f;
     float totalTime = 0.f;
     bool mouseInside = false;
-
 
 
 
@@ -861,6 +943,7 @@ int main()
 
 
     const int TOTAL_Q = 10;
+
     string houseNames[4] = { "Gryffindor", "Slytherin", "Ravenclaw", "Hufflepuff" };
 
     string houseDesc[4] =
@@ -1039,7 +1122,7 @@ int main()
 
 
 
-    // where thihgs go on this design of harry potter quiz (the picture is 1000 x 600 pixels)
+    // where thihgs go on this design of harry potter quiz 
 
 
     //start page 
@@ -1275,10 +1358,11 @@ int main()
         };
 
     // game guess the word vriables
-    string word = ""; // real secret word
-    string hidden = ""; // word shown to user
+
+    string word = "";
+    string hidden = "";
     string used = "";
-    string guessMessage = ""; // msg show to player
+    string guessMessage = "";
 
     int chances = 5;
     bool won = false;
@@ -1289,21 +1373,21 @@ int main()
     Text gameUsed("", buttonFont, 25);
     Text gameMessage("", buttonFont, 28);
 
-    gameWord.setFillColor(Color(255,255,255));  // blanks white ivory
-    gameChances.setFillColor(Color(255,255,255));
-    gameUsed.setFillColor(Color(255,255,255));
-    gameMessage.setFillColor(Color(255,255,255)); // type one letter and msgs
+    gameWord.setFillColor(Color(255, 255, 255));        // the blanks brigt ivory
+    gameChances.setFillColor(Color(255, 255, 255));    // Chances left ivory
+    gameUsed.setFillColor(Color(255, 255, 255));       // Used letters ivory 
+    gameMessage.setFillColor(Color(255, 255, 255));    // Type one letter ivory
 
 
     // The words, and which letters are shown at the start
-    // Every copy of a shown letter is revealed, so no letter is half-shown
+    // Every copy of a shown letter is revealed, so no letter is half shown
     string guessWords[10] =
     {
         "hogwarts", "voldemort", "halfblood", "mudblood", "azkaban",
         "dumbledore", "bellatrix", "horcrux", "hagrid", "dobby"
     };
 
-    string guessReveal[10] = // ts array stores which leters should be visible
+    string guessReveal[10] =
     {
         "hw", "ler", "hfo", "ubd", "zn",
         "ul", "bax", "hc", "hg", "oy"
@@ -1311,23 +1395,22 @@ int main()
 
 
     // Places the Guess the Word buttons depending on the state of the game
-auto layoutGuessButtons = [&]()
-{
-    if (won || lost)
-    {
-        bool allWon = wonGuess && wonMemory && wonDrawing;
+    auto layoutGuessButtons = [&]()
+        {
+            if (won || lost)
+            {
+                bool allWon = wonGuess && wonMemory && wonDrawing;
 
-        setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 190, 400, 280, 62, 20);
-        setSmallButton(b2, t2, won ? "New Word" : "Try Again", 510, 400, 280, 62, 20);
-        setSmallButton(back, tBack, "Back", 350, 490, 280, 62, 20);
-    }
-    else
-    {
-        setSmallButton(b2, t2, "New Word", 190, 505, 280, 62, 20);
-        setSmallButton(back, tBack, "Back", 510, 505, 280, 62, 20);
-    }
-};
-
+                setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 190, 400, 280, 62, 20);
+                setSmallButton(b2, t2, won ? "New Word" : "Try Again", 510, 400, 280, 62, 20);
+                setSmallButton(back, tBack, "Back", 350, 490, 280, 62, 20);
+            }
+            else
+            {
+                setSmallButton(b2, t2, "New Word", 190, 505, 280, 62, 20);
+                setSmallButton(back, tBack, "Back", 510, 505, 280, 62, 20);
+            }
+        };
 
 
     // Starts a new round of Guess the Word
@@ -1341,7 +1424,7 @@ auto layoutGuessButtons = [&]()
 
             for (int i = 0; i < (int)word.length(); i++)
             {
-                 if (hasChar(used, word[i]))
+                if (hasChar(used, word[i]))
                     hidden += word[i];
                 else
                     hidden += '_';
@@ -1375,22 +1458,22 @@ auto layoutGuessButtons = [&]()
 
 
     // Places the Memory Number buttons depending on the state of the game
-auto layoutMemoryButtons = [&]()
-{
-    if (memPhase >= 2)
-    {
-        bool allWon = wonGuess && wonMemory && wonDrawing;
-        
-        setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 190, 400, 280, 62, 20);
-        setSmallButton(b2, t2, memPhase == 2 ? "New Round" : "Try Again", 510, 400, 280, 62, 20);
-        setSmallButton(back, tBack, "Back", 350, 490, 280, 62, 20);
-    }
-    else
-    {
-        setSmallButton(b2, t2, "New Round", 190, 505, 280, 62, 20);
-        setSmallButton(back, tBack, "Back", 510, 505, 280, 62, 20);
-    }
-};
+    auto layoutMemoryButtons = [&]()
+        {
+            if (memPhase >= 2)
+            {
+                bool allWon = wonGuess && wonMemory && wonDrawing;
+
+                setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 190, 400, 280, 62, 20);
+                setSmallButton(b2, t2, memPhase == 2 ? "New Round" : "Try Again", 510, 400, 280, 62, 20);
+                setSmallButton(back, tBack, "Back", 350, 490, 280, 62, 20);
+            }
+            else
+            {
+                setSmallButton(b2, t2, "New Round", 190, 505, 280, 62, 20);
+                setSmallButton(back, tBack, "Back", 510, 505, 280, 62, 20);
+            }
+        };
 
 
     // Starts a new round of Memory Number
@@ -1405,7 +1488,7 @@ auto layoutMemoryButtons = [&]()
                 if (n < 10)
                     memSequence += '0';
 
-               memSequence += intToString(n);
+                memSequence += intToString(n);
             }
 
             memTyped = "";
@@ -1437,27 +1520,28 @@ auto layoutMemoryButtons = [&]()
     int drawPhase = 0;
 
     Text drawLabel("", buttonFont, 22);
-    drawLabel.setFillColor(Color(255,232,170));
+    drawLabel.setFillColor(Color(255, 232, 170));
 
 
-    // draw the buttons based on curent state of the game
-auto layoutDrawingButtons = [&]()
-{
-    bool allWon = wonGuess && wonMemory && wonDrawing;
- 
-    if (drawPhase != 0)
-    {
-        setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 150, 508, 200, 54, 20);
-        setSmallButton(b2, t2, drawPhase == 1 ? "Play Again" : "Try Again", 390, 508, 200, 54, 20);
-    }
-    else
-    {
-        setSmallButton(b1, t1, "Check", 150, 508, 200, 54, 20);
-        setSmallButton(b2, t2, "Clear", 390, 508, 200, 54, 20);
-    }
- 
-    setSmallButton(back, tBack, "Back", 630, 508, 200, 54, 20);
-};
+    // draw the buttons based on h curent state of the game
+    auto layoutDrawingButtons = [&]()
+        {
+            bool allWon = wonGuess && wonMemory && wonDrawing;
+
+            if (drawPhase != 0)
+            {
+                setSmallButton(b1, t1, allWon ? "Secret Letters" : "Next Game", 150, 508, 200, 54, 20);
+                setSmallButton(b2, t2, drawPhase == 1 ? "Play Again" : "Try Again", 390, 508, 200, 54, 20);
+            }
+            else
+            {
+                setSmallButton(b1, t1, "Check", 150, 508, 200, 54, 20);
+                setSmallButton(b2, t2, "Clear", 390, 508, 200, 54, 20);
+            }
+
+            setSmallButton(back, tBack, "Back", 630, 508, 200, 54, 20);
+        };
+
 
     // Starts a round of Drawing Recreation.
     // newPicture = true     a different random emoji
@@ -1511,45 +1595,38 @@ auto layoutDrawingButtons = [&]()
             else
             {
                 drawPhase = 2;
-                 drawMessage = "You lost Drawing Recreation! You matched " + intToString(matches) + " / " + intToString(GRID * GRID);
+                drawMessage = "You lost Drawing Recreation! You matched " + intToString(matches) + " / " + intToString(GRID * GRID);
             }
 
             layoutDrawingButtons();
         };
 
 
-   // Decides where (Next Game) goes, following the order of the Game Hub menu:
-    // Guess the Word -> Drawing Recreation -> Memory Number -> back to Guess the Word
+    // Decides where (Next Game) goes=
     // all 3 games won              Secret Letters
-    // next game in the menu order that is not won yet (the current game is skipped)
+    // another game not won         one of those (random if there are two)
     // nothing else to play         Game Hub
     auto pickNextScreen = [&](int current) -> int
         {
             if (wonGuess && wonMemory && wonDrawing)
                 return 3;
 
-            int order[3] = { 4, 6, 5 };
-            bool wonAlready[3] = { wonGuess, wonDrawing, wonMemory };
+            int choices[3];
+            int count = 0;
 
-            int pos = 0;
+            if (current != 4 && !wonGuess) { choices[count] = 4; count++; }
+            if (current != 5 && !wonMemory) { choices[count] = 5; count++; }
+            if (current != 6 && !wonDrawing) { choices[count] = 6; count++; }
 
-            for (int i = 0; i < 3; i++)
-            {
-                if (order[i] == current)
-                    pos = i;
-            }
+            if (count == 0)
+                return 1;
 
-            for (int step = 1; step < 3; step++)
-            {
-                int k = (pos + step) % 3;
-
-                if (!wonAlready[k])
-                    return order[k];
-            }
-
-            return 1;
+            return choices[rand() % count];
         };
-    // ---------- SECRET LETTERS variables ----------
+
+
+    // secret letters variables
+    // 
     // letterMode: 0 = menu, 1 = writing, 2 = choosing the PIN, 3 = saved,
     //             4 = typing a PIN to read a letter, 5 = reading a letter
     int letterMode = 0;
@@ -1557,71 +1634,72 @@ auto layoutDrawingButtons = [&]()
     string slPin = "";      // the PIN being typed
     string slMsg = "";      // small message
     string slShown = "";    // the letter being read
- 
+
     Text slText("", bodyFont, 22);
     Text slLabel("", buttonFont, 28);
     Text slBig("", buttonFont, 50);
- 
-    slText.setFillColor(Color(70, 40, 15));         // dark ink, because it is written on a scroll
-    slLabel.setFillColor(Color(70, 40, 15));        // dark ink, written on the scroll
-    slBig.setFillColor(Color(110, 30, 30));         // dark red ink for the PIN
- 
-    Text slSmall("", bodyFont, 20);                 // small dark text (letter counter / messages) on the scroll
+
+    slText.setFillColor(Color(70, 40, 15));    
+    slLabel.setFillColor(Color(90,20,20));
+    slBig.setFillColor(Color(60,30, 100));
+
+    Text slSmall("", bodyFont, 20);      // secret letters msgs
     slSmall.setFillColor(Color(90, 50, 20));
- 
-    // where the letter is written on the scroll picture
-    const float SCROLL_X = 230.f;       // left edge of the writing area
-    const float SCROLL_Y = 150.f;       // top edge of the writing area
-    const float SCROLL_W = 520.f;       // width of the writing area (long lines wrap at this width)
-    const float SCROLL_H = 290.f;       // height of the writing area
-    const int SCROLL_FONT = 22;         // size of the letter text
+
+    // where letter is written on the scroll picture dimensions
+    const float SCROLL_X = 230.f;   // left edge of the writing area
+    const float SCROLL_Y = 185.f;    // top edge of the writing area
+    const float SCROLL_W = 520.f;   // width of the writing area 
+    const float SCROLL_H = 255.f;  // height of the writing area
+    const int SCROLL_FONT = 22;   // size of the letter text
+
 
     // Places the buttons for the letter mode that is showing
     auto layoutLetterScreen = [&]()
         {
             bool allWon = wonGuess && wonMemory && wonDrawing;
- 
-            if (letterMode == 0 && allWon)
+
+            if (letterMode == 0)
             {
-                // unlocked: the letter picture fills the screen, so there are only 2 buttons at the bottom:
-                // Back (left) and Next: Write Letter (right)
-                setSmallButton(back, tBack, "Back", 240, 505, 240, 62, 20);
-                setSmallButton(b1, t1, "Next: Write Letter", 520, 505, 240, 62, 20);
-            }
-            else if (letterMode == 0)
-            {
-                // locked
-                setButton(b1, t1, "Writing Locked", 300, 190);                 setButton(b2, t2, "Read a Friend's Letter", 300, 290);
-                setButton(back, tBack, "Back", 310, 495);
-            }             else
-            {
-                if (letterMode == 1)
+                if (menuLetterOK && allWon)
                 {
-                    // writing: Next + Read a Friend's Letter + Cancel
-                    setSmallButton(b1, t1, "Next: Set PIN", 40, 505, 270, 62, 20);
-                    setSmallButton(b2, t2, "Read a Friend's Letter", 330, 505, 330, 62, 20);
+                    setSmallButton(back, tBack, "Back", 540, 505, 200, 50, 20);
+                    setSmallButton(b1, t1, allWon ? "Write Letter" : "Writing Locked", 760, 505, 200, 50, 20);
+                    setSmallButton(b2, t2, "Read a Friend's Letter", 520, 445, 440, 44, 20);
                 }
- 
-               if (letterMode == 2)
-                    setSmallButton(b1, t1, "Save Letter", 190, 505, 280, 62, 20);
- 
-                string label = "Close";
- 
-                if (letterMode == 1 || letterMode == 4)
-                    label = "Cancel";            
-                else if (letterMode == 2)                     label = "Back";              
-                else if (letterMode == 3)                     label = "Done";
+                else
+                {
+                    setSmallButton(b1, t1, allWon ? "Write a Secret Letter" : "Writing Locked", 340, 165, 300, 58, 20);
+                    setSmallButton(b2, t2, "Read a Friend's Letter", 340, 235, 300, 58, 20);
+                    setSmallButton(back, tBack, "Back", 340, 470, 300, 58, 20);
+                }
+            }
+            else
+            {
                 if (letterMode == 1)
-                    setSmallButton(back, tBack, label, 680, 505, 280, 62, 20);
+                    setSmallButton(b1, t1, "Next: Set PIN", 190, 505, 280, 62, 20);
+
+                if (letterMode == 2)
+                    setSmallButton(b1, t1, "Save Letter", 190, 505, 280, 62, 20);
+
+                string label = "Close";
+
+                if (letterMode == 1 || letterMode == 4)
+                    label = "Cancel";
                 else if (letterMode == 2)
+                    label = "Back";
+                else if (letterMode == 3)
+                    label = "Done";
+
+                if (letterMode == 1 || letterMode == 2)
                     setSmallButton(back, tBack, label, 510, 505, 280, 62, 20);
                 else
                     setSmallButton(back, tBack, label, 350, 505, 280, 62, 20);
             }
         };
- 
- 
-    // Saves the letter with the chosen PIN (if the PIN is not already used)
+
+
+    // ts saves the letter with the chosen pin
     auto trySaveLetter = [&]()
         {
             if ((int)slPin.length() < 4)
@@ -1632,37 +1710,39 @@ auto layoutDrawingButtons = [&]()
             {
                 slMsg = "That PIN is already used. Pick another one.";
                 slPin = "";
-            }             
+            }
             else
             {
                 saveLetter(slPin, slBody);
                 slMsg = "Letter saved! Your PIN is " + slPin;
-                letterMode = 3;                 layoutLetterScreen();
+                letterMode = 3;
+                layoutLetterScreen();
             }
         };
- 
- 
-    // Opens the letter that belongs to the typed PIN
+
+
+    // Opens the letter that belongs to the typed pin
     auto tryOpenLetter = [&]()
         {
             string txt;
- 
+
             if (loadLetter(slPin, txt))
             {
-                slShown = txt;                 
-                slMsg = "";                 letterMode = 5;
-            }             else
+                slShown = txt;
+                slMsg = "";
+                letterMode = 5;
+            }
+            else
             {
                 slMsg = "No letter found for that PIN";
                 slPin = "";
             }
- 
+
             layoutLetterScreen();
         };
 
 
-
-    // Tells which button (if any) is under the point p used for the button sounds
+    // Tells which button is under the point p used for the button sounds
     // 0 = nothing, 1 = b1, 2 = b2, 3 = b3, 4 = back, 10 = Sorting Hat, 20-23 = quiz answers
     auto hoveredButton = [&](Vector2f p) -> int
         {
@@ -1702,22 +1782,17 @@ auto layoutDrawingButtons = [&]()
             else if (screen == 3)
             {
                 if (isClicked(back, p)) return 4;
- 
+
                 if (letterMode == 0)
                 {
                     if (wonGuess && wonMemory && wonDrawing && isClicked(b1, p)) return 1;
-                    if (!(wonGuess && wonMemory && wonDrawing) && isClicked(b2, p)) return 2;
+                    if (isClicked(b2, p)) return 2;
                 }
                 else if ((letterMode == 1 || letterMode == 2) && isClicked(b1, p))
                 {
                     return 1;
                 }
-                else if (letterMode == 1 && isClicked(b2, p))
-                {
-                    return 2;
-                }
             }
-
             else if (screen == 6)
             {
                 if (isClicked(back, p)) return 4;
@@ -1788,36 +1863,37 @@ auto layoutDrawingButtons = [&]()
             else if (screen == 3)
             {
                 setBackground(background, letterTex);
-               setHeading(heading, "Secret Letters", 80);
- 
-                letterMode = 0;                 slBody = "";                 slPin = "";                 slMsg = "";                 slShown = "";                 layoutLetterScreen();
-
+                setHeading(heading, "Secret Letters", 80);
+                heading.setPosition(heading.getPosition().x, 45.f);
+                letterMode = 0;
+                slBody = "";
+                slPin = "";
+                slMsg = "";
+                slShown = "";
+                layoutLetterScreen();
             }
             else if (screen == 4)
             {
-               setBackground(background, guessTex);
-               setHeading(heading, "Guess the Word", 70);
-               heading.setFillColor(Color(232, 238, 232));
-               heading.setOutlineColor(Color(15, 55, 38));
-                
-               startGuessGame();
+                setBackground(background, guessTex);
+                setHeading(heading, "Guess the Word", 70);
+                heading.setFillColor(Color(232, 238, 232));  // inside
+                heading.setOutlineColor(Color(15, 55, 38));  // boundary
+
+                startGuessGame();
             }
             else if (screen == 5)
             {
                 setBackground(background, memTex);
                 setHeading(heading, "Memory Number", 75);
-                heading.setFillColor(Color(255, 236, 170));
-                heading.setOutlineColor(Color(60, 10, 15));
-
+                heading.setFillColor(Color(255, 236, 170)); // inside
+                heading.setOutlineColor(Color(60, 10, 15)); // boundary
                 startMemoryGame();
             }
             else if (screen == 6)
             {
-               setBackground(background, drawTex);
-               setHeading(heading, "Drawing Recreation", 50);
-               heading.setPosition(heading.getPosition().x, 30.f); // making heading drawing recreation more towards top
-
-
+                setBackground(background, drawTex);
+                setHeading(heading, "Drawing Recreation", 60);
+                heading.setPosition(heading.getPosition().x, 30.f);
                 startDrawingGame(true);
             }
         }
@@ -1924,7 +2000,7 @@ auto layoutDrawingButtons = [&]()
                 else if (screen == 3)
                 {
                     bool allWon = wonGuess && wonMemory && wonDrawing;
- 
+
                     if (isClicked(back, m))
                     {
                         if (letterMode == 0)
@@ -1935,24 +2011,34 @@ auto layoutDrawingButtons = [&]()
                         {
                             letterMode = 1;     // go back to editing the letter
                             slMsg = "";
-                        }                         else
-                        {
-                            letterMode = 0;                             slBody = "";                             slPin = "";                             slMsg = "";                             slShown = "";
                         }
- 
+                        else
+                        {
+                            letterMode = 0;
+                            slBody = "";
+                            slPin = "";
+                            slMsg = "";
+                            slShown = "";
+                        }
+
                         if (screen == 3)
                             layoutLetterScreen();
                     }
                     else if (letterMode == 0 && allWon && isClicked(b1, m))
                     {
-                        // Write a Secret Letter
-                        letterMode = 1;                         slBody = "";                         slPin = "";                         slMsg = "";
+                        // write a Secret Letter
+                        letterMode = 1;
+                        slBody = "";
+                        slPin = "";
+                        slMsg = "";
                         layoutLetterScreen();
                     }
-                    else if (letterMode == 0 && !allWon && isClicked(b2, m))
+                    else if (letterMode == 0 && isClicked(b2, m))
                     {
-                        // Read a Friend's Letter
-                        letterMode = 4;                         slPin = "";                         slMsg = "";
+                        // read a friends Letter
+                        letterMode = 4;
+                        slPin = "";
+                        slMsg = "";
                         layoutLetterScreen();
                     }
                     else if (letterMode == 1 && isClicked(b1, m))
@@ -1960,24 +2046,20 @@ auto layoutDrawingButtons = [&]()
                         if (slBody.empty())
                         {
                             slMsg = "Write something first";
-                        }                         else
+                        }
+                        else
                         {
-                            letterMode = 2;                             slPin = "";                             slMsg = "";
+                            letterMode = 2;
+                            slPin = "";
+                            slMsg = "";
                             layoutLetterScreen();
                         }
-                    }
-                    else if (letterMode == 1 && isClicked(b2, m))
-                    {
-                        // Read a Friend's Letter (from the writing screen)
-                        letterMode = 4;                         slBody = "";                         slPin = "";                         slMsg = "";
-                        layoutLetterScreen();
                     }
                     else if (letterMode == 2 && isClicked(b1, m))
                     {
                         trySaveLetter();
                     }
                 }
-
                 else if (screen == 4)
                 {
                     if (isClicked(back, m))
@@ -2011,12 +2093,12 @@ auto layoutDrawingButtons = [&]()
                     }
                     else if (isClicked(b2, m))
                     {
-                        // Clear / Try Again keep the same picture,Play Again gives a new one
+                        // Clear / Try Again keep the same picture &Play Again gives a new one
                         startDrawingGame(drawPhase == 1);
                     }
                     else if (drawPhase == 0)
                     {
-                        //click on the player's grid: flip the square
+                        //click on the player's grid= flip the square
                         float gx = m.x - DRAW_X_PLAYER;
                         float gy = m.y - DRAW_Y;
 
@@ -2042,7 +2124,7 @@ auto layoutDrawingButtons = [&]()
                 {
                     startGuessGame();
                 }
-               else if (!won && !lost && c < 128 && isLetter(c))
+                else if (!won && !lost && c < 128 && isLetter(c))
                 {
                     char letter = toLowerChar((char)c);
 
@@ -2128,27 +2210,29 @@ auto layoutDrawingButtons = [&]()
                 }
             }
 
-// keyboard part of secret letters
+
+            // keyboard part of secret letters
             if (screen == 3 && event.type == Event::TextEntered)
             {
                 int c = event.text.unicode;
- 
+
                 if (letterMode == 1)
                 {
                     if (c == 8)     // Backspace
                     {
-if (!slBody.empty())                             removeLast(slBody);
+                        if (!slBody.empty())
+                            removeLast(slBody);
                     }
                     else if (c == 13 || c == 10)    // Enter = new line (at most 6 new lines)
                     {
                         int lines = 0;
- 
+
                         for (int i = 0; i < (int)slBody.length(); i++)
                         {
                             if (slBody[i] == '\n')
                                 lines++;
                         }
- 
+
                         if (lines < 6 && (int)slBody.length() < MAX_LETTER)
                             slBody += '\n';
                     }
@@ -2161,13 +2245,14 @@ if (!slBody.empty())                             removeLast(slBody);
                 {
                     if (c == 8)     // Backspace
                     {
-                        if (!slPin.empty())                             removeLast(slPin);
+                        if (!slPin.empty())
+                            removeLast(slPin);
                     }
                     else if (c >= '0' && c <= '9' && (int)slPin.length() < 4)
                     {
                         slPin += (char)c;
- 
-                        // reading: the letter opens by itself when the 4th digit is typed
+
+                        // reading the letter opens by itself when the 4th digit is typed
                         if (letterMode == 4 && (int)slPin.length() == 4)
                             tryOpenLetter();
                     }
@@ -2177,6 +2262,7 @@ if (!slBody.empty())                             removeLast(slBody);
                     }
                 }
             }
+
 
             //keyboard part of drawing recreation 
             if (screen == 6 && event.type == Event::TextEntered)
@@ -2192,7 +2278,7 @@ if (!slBody.empty())                             removeLast(slBody);
                 }
             }
         }
-        // updation (Memory Number timer + hover sound )
+        // updation (Memory Number timer + hover sound + wand sparkles)
 
 
         if (screen == 5 && memPhase == 0 && memClock.getElapsedTime().asSeconds() >= 5.0f)
@@ -2207,28 +2293,63 @@ if (!slBody.empty())                             removeLast(slBody);
             hoverSound.play();
 
         lastHover = hoverNow;
+
+     
         prevMouse = mouse;
 
-        
+        if (mouseInside)
+        {
+            sparkTimer += dt;
 
-      
+            while (sparkTimer > 0.025f)
+            {
+                sparkTimer -= 0.025f;
+
+                Spark s;
+                s.pos = mouse + Vector2f((float)(rand() % 9 - 4), (float)(rand() % 9 - 4));
+                s.vel = Vector2f((float)(rand() % 50 - 25), (float)(rand() % 40 - 10));
+                s.maxLife = 0.45f + (rand() % 20) / 100.f;
+                s.life = s.maxLife;
+                s.size = 3.f + (rand() % 40) / 10.f;
+                s.rot = (rand() % 100) / 50.f;
+
+                if (sparkCount < MAX_SPARKS)
+                {
+                    sparks[sparkCount] = s;
+                    sparkCount++;
+                }
+            }
+        }
+
+        for (int i = 0; i < sparkCount; i++)
+        {
+            sparks[i].life -= dt;
+            sparks[i].pos += sparks[i].vel * dt;
+            sparks[i].vel.y += 40.f * dt;// drifts down slowly
+        }
+
+        for (int i = sparkCount - 1; i >= 0; i--)
+        {
+            if (sparks[i].life <= 0.f)
+                removeSpark(sparks, sparkCount, i);
+        }
 
         // DRAWING
 
-       window.clear();
- 
-        // writing and reading a letter use the scroll picture, everything else the normal background
-        bool allWonNow = wonGuess && wonMemory && wonDrawing;
-        bool onScroll = (screen == 3 && scrollOK && letterMode != 0);
-        bool onLocked = (screen == 3 && letterMode == 0 && !allWonNow);
+        window.clear();
+
+        // writing a letter uses scroll.png,
+        // the Secret Letters menu uses the Hogwarts letter picture only when all 3 games are won,
+        // everything else (locked menu, PIN, reading a letter) uses letters.png
+        bool onScroll = (screen == 3 && scrollOK && (letterMode == 1|| letterMode== 5));
+        bool onLetterPage = (screen == 3 && menuLetterOK && letterMode == 0 && wonGuess && wonMemory && wonDrawing);
 
         if (onScroll)
-            window.draw(scrollBg);          // writing, PIN and reading screens
-        else if (onLocked)
-            window.draw(lockedBg);          // menu while the 3 games are not all won
+            window.draw(scrollBg);
+        else if (onLetterPage)
+            window.draw(menuLetterBg);
         else
-            window.draw(background);        // menu when unlocked = letters.png
-
+            window.draw(background);
 
         if (screen == 0)
         {
@@ -2328,7 +2449,7 @@ if (!slBody.empty())                             removeLast(slBody);
                     badge.setOutlineColor(Color(160, 100, 55));
                     window.draw(badge);
 
-                     string letterStr = "";
+                    string letterStr = "";
                     letterStr += (char)('A' + i);
                     letterText.setString(letterStr);
                     letterText.setCharacterSize(20);
@@ -2351,7 +2472,7 @@ if (!slBody.empty())                             removeLast(slBody);
             }
             else
             {
-                // ----- RESULT PAGE -----
+                // result page
                 window.draw(crestResult);
 
                 window.draw(resSmall);
@@ -2369,77 +2490,105 @@ if (!slBody.empty())                             removeLast(slBody);
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
-       else if (screen == 3)
+        else if (screen == 3)
         {
-            if (!onScroll && !(letterMode == 0 && allWonNow))
+            if (!onScroll && !onLetterPage)
                 window.draw(heading);
- 
+
             bool allWon = wonGuess && wonMemory && wonDrawing;
- 
-            int winsCount = 0;             if (wonGuess)   winsCount++;             if (wonMemory)  winsCount++;             if (wonDrawing) winsCount++;
-// small helper: writes one line of text in the middle of the screen
+
+            int winsCount = 0;
+            if (wonGuess)   winsCount++;
+            if (wonMemory)  winsCount++;
+            if (wonDrawing) winsCount++;
+
+            // small helper= writes one line of text in the middle of the screen
             auto say = [&](Text& t, const string& words, float y)
                 {
-                    t.setString(words);                     centerText(t, y);                     window.draw(t);
+                    t.setString(words);
+                    centerText(t, y);
+                    window.draw(t);
                 };
- 
+
             if (letterMode == 0)
             {
-                // menu: write (locked until 3 wins) + read (always open)
+                // menu write =(locked until 3 wins) + read (always open)
                 drawButton(window, b1, btnTex, mouse);
                 window.draw(t1);
- 
-                if (!allWon)
+
+                drawButton(window, b2, btnTex, mouse);
+                window.draw(t2);
+
+                if (onLetterPage)
                 {
-                    drawButton(window, b2, btnTex, mouse);
-                    window.draw(t2);
-say(lockMsg, "You can't write a letter yet. Win all 3 games!", 395);                     say(lockCount, "Games won: " + intToString(winsCount) + " / 3", 435);
+                    // on the Hogwarts =letter only a small hint under the buttons while writing is locked
+                    if (!allWon)
+                    {
+                        slSmall.setString("Win all 3 games to unlock writing  (" + intToString(winsCount) + " / 3)");
+                        centerAt(slSmall, 740.f, 562.f);
+                        window.draw(slSmall);
+                    }
+                }
+                else if (allWon)
+                {
+                    slLabel.setCharacterSize(20);
+                    say(slLabel, "You can write a secret letter!", 330);
+                    slLabel.setCharacterSize(28);
+                }
+                else
+                {
+                    slLabel.setCharacterSize(20);   // smaller text for the menu
+                    say(slLabel, "You can't write a letter yet. Win all 3 games!", 325);
+                    say(slLabel, "Games won: " + intToString(winsCount) + " / 3", 355);
+                    slLabel.setCharacterSize(28);   // back to normal for the PIN screens
                 }
             }
             else if (letterMode == 1)
             {
-                // writing the letter, directly on the scroll
-string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
- 
+                // writing the letter
+                string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
+
+                slText.setFillColor(scrollOK ? Color(70, 40, 15) : Color(255, 240, 190));
                 slText.setCharacterSize(SCROLL_FONT);
                 slText.setString(wrapParagraphs(slBody + cursor, bodyFont, SCROLL_FONT, SCROLL_W));
                 placeText(slText, SCROLL_X, SCROLL_Y);
                 window.draw(slText);
- 
+
                 // letter counter and message, just under the writing area
-                say(slSmall, intToString((int)slBody.length()) + " / " + intToString(MAX_LETTER) + "     " 
-+ slMsg, SCROLL_Y + SCROLL_H + 6.f);
- 
+                slSmall.setFillColor(scrollOK ? Color(90, 50, 20) : Color(255, 240, 190));
+                say(slSmall, intToString((int)slBody.length()) + " / " + intToString(MAX_LETTER) + "     " + slMsg, SCROLL_Y + SCROLL_H + 6.f);
+
                 drawButton(window, b1, btnTex, mouse);
                 window.draw(t1);
- 
-                drawButton(window, b2, btnTex, mouse);
-                window.draw(t2);
             }
             else if (letterMode == 2 || letterMode == 4)
             {
-                // typing a PIN (to save a letter, or to read one)
+                // typing a PIN
+                slLabel.setCharacterSize(20);
                 if (letterMode == 2)
-                    say(slLabel, "Choose a 4-digit PIN for your letter", 150);
+                    say(slLabel, "Choose a 4-digit PIN for your letter", 185);
                 else
-                    say(slLabel, "Enter the 4-digit PIN from your friend", 150);
- 
+                    say(slLabel, "Enter the 4-digit PIN from your friend", 185);
+
                 string shownPin = slPin;
- 
+
                 while ((int)shownPin.length() < 4)
                     shownPin += '_';
- 
-                say(slBig, spaced(shownPin), 230);
-                say(slLabel, slMsg, 340);
- 
+
+                say(slBig, spaced(shownPin), 250);
+                say(slLabel, slMsg, 345);
+
                 if (letterMode == 2)
                 {
                     say(slLabel, "Tell this PIN to your friend so they can open it", 400);
- 
+                    
                     drawButton(window, b1, btnTex, mouse);
                     window.draw(t1);
                 }
+
+                slLabel.setCharacterSize(28);
             }
+            
             else if (letterMode == 3)
             {
                 // saved
@@ -2448,18 +2597,17 @@ string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
             }
             else if (letterMode == 5)
             {
-                // reading a letter, directly on the scroll
+                // reading a letter
+                slText.setFillColor(scrollOK ? Color(70, 40, 15):Color(255,240,190));
                 slText.setCharacterSize(SCROLL_FONT);
-
                 slText.setString(wrapParagraphs(slShown, bodyFont, SCROLL_FONT, SCROLL_W));
                 placeText(slText, SCROLL_X, SCROLL_Y);
                 window.draw(slText);
             }
- 
+
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
-
         else if (screen == 4)
         {
             window.draw(heading);
@@ -2547,27 +2695,28 @@ string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
             window.draw(drawLabel);
             // two grids
             for (int r = 0; r < DRAW_N; r++)
-{
-    for (int c = 0; c < DRAW_N; c++)
-    {
-        RectangleShape cell(Vector2f(DRAW_CELL - 2.f, DRAW_CELL - 2.f));
-        cell.setOutlineThickness(-1.5f);
-        cell.setOutlineColor(Color(120, 85, 50, 220));
+            {
+                for (int c = 0; c < DRAW_N; c++)
+                {
+                    RectangleShape cell(Vector2f(DRAW_CELL - 2.f, DRAW_CELL - 2.f));
+                    cell.setOutlineThickness(-1.5f);
+                    cell.setOutlineColor(Color(120, 85, 50, 220));
 
-        // left grid 
-        cell.setPosition(DRAW_X_TARGET + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
-        cell.setFillColor(drawTarget[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
-        window.draw(cell);
+                    // left grid 
+                    cell.setPosition(DRAW_X_TARGET + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
+                    cell.setFillColor(drawTarget[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
+                    window.draw(cell);
 
-        // right grid
-        cell.setPosition(DRAW_X_PLAYER + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
-        cell.setFillColor(drawPlayer[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
-        window.draw(cell);
-    }
-}
+                    // right grid
+                    cell.setPosition(DRAW_X_PLAYER + c * DRAW_CELL, DRAW_Y + r * DRAW_CELL);
+                    cell.setFillColor(drawPlayer[r][c] ? Color(105, 65, 160) : Color(236, 222, 190, 190));
+                    window.draw(cell);
+                }
+            }
+
 
             drawMsg.setString(drawMessage);
-            fitText(drawMsg, 680.f, 23, 14); // sentennce b/w teo grids
+            fitText(drawMsg, 680.f, 23, 14);
             centerText(drawMsg, 452);
             window.draw(drawMsg);
 
@@ -2580,12 +2729,20 @@ string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
+        // WAND CURSOR 
         if (mouseInside)
         {
+            for (int i = 0; i < sparkCount; i++)
+            {
+                float k = sparks[i].life / sparks[i].maxLife;     // 1 -> 0
+                Color c(255, 225, 140, (Uint8)(255 * k));
+
+                drawStar(window, sparks[i].pos, sparks[i].size * (0.4f + 0.6f * k),
+                    c, sparks[i].rot + totalTime * 2.f);
+            }
             wand.setPosition(mouse);
             window.draw(wand);
         }
-
         window.display();
     }
     return 0;
