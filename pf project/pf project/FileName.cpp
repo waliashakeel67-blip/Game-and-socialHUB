@@ -837,6 +837,33 @@ int main()
         return -1;
 
     btnTex.setSmooth(true);
+    // the scroll picture: the paper the secret letter is written and read on (1000 x 600)
+    // if scroll.png is missing the game still runs and uses the normal letters.png background
+    Texture scrollTex;
+    Sprite scrollBg;
+    bool scrollOK = scrollTex.loadFromFile("scroll.png");
+ 
+    if (scrollOK)
+    {
+        scrollTex.setSmooth(true);
+        setBackground(scrollBg, scrollTex);
+    }
+ 
+    // the "locked" picture: shown on the Secret Letters menu until all 3 games are won
+    // (if locked.png is missing, the main menu picture is used instead)
+    Texture lockedTex;
+    Sprite lockedBg;
+    bool lockedOK = lockedTex.loadFromFile("locked.png");
+    if (lockedOK)
+    {
+        lockedTex.setSmooth(true);
+        setBackground(lockedBg, lockedTex);
+    }     else
+    {
+        setBackground(lockedBg, menuTex);
+    }
+
+
 
     // Quiz pictures
     Texture hatTex, hatGlowTex, wandTex;
