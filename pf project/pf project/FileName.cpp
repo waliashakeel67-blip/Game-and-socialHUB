@@ -15,7 +15,7 @@ using namespace std;
 
 const float CLICK_VOLUME = 60.f;      // 0 = silent, 100 = loudest
 const float HOVER_VOLUME = 25.f;      // set to 0 to turn the hover sound off
-const float SPARKLE_VOLUME = 8.f;     // wand sparkle sound, set to 0 to turn it off
+// DELED SPRKLE
 
 
 
@@ -603,44 +603,7 @@ string makePairs(string s)
 }
 
 
-//sparkling of wand
 
-
-struct Spark
-{
-    Vector2f pos;
-    Vector2f vel;
-    float life;
-    float maxLife;
-    float size;
-    float rot;
-};
-
-// Removes spark number index by moving the ones after it one place back
-void removeSpark(Spark arr[], int& count, int index)
-{
-    for (int j = index; j < count - 1; j++)
-        arr[j] = arr[j + 1];
-
-    count--;
-}
-
-// Draws a small 4-point star
-void drawStar(RenderWindow& window, Vector2f p, float r, Color c, float rot)
-{
-    ConvexShape s(8);
-
-    for (int i = 0; i < 8; i++)
-    {
-        float a = rot + i * 3.14159265f / 4.0f;
-        float rad = (i % 2 == 0) ? r : r * 0.28f;
-        s.setPoint(i, Vector2f(cos(a) * rad, sin(a) * rad));
-    }
-
-    s.setPosition(p);
-    s.setFillColor(c);
-    window.draw(s, RenderStates(BlendAdd));
-}
 
 // DRAWING RECREATION PICTURES
 
@@ -843,22 +806,7 @@ int main()
     }
 
     int lastHover = 0;      // which button the mouse was over in the last frame
-
-
-    // wand sparkle sound
-    SoundBuffer sparkleBuf;
-    Sound sparkleSound[4];
-
-    bool sparkleOK = sparkleBuf.loadFromFile("sparkle.wav");
-
-    if (sparkleOK)
-    {
-        for (int i = 0; i < 4; i++)
-            sparkleSound[i].setBuffer(sparkleBuf);
-    }
-
-    int nextSparkleSound = 0;
-    float sparkleSoundTimer = 0.f;
+    
     Vector2f prevMouse(0.f, 0.f);
 
 
@@ -898,20 +846,17 @@ int main()
 
 
 
-    // wand cursor plus sparkles
+   // wand cursor
 
 
     Sprite wand(wandTex);
     wand.setOrigin(297.f, 1.f);        // the tip of the wand (top right of the picture)
     wand.setScale(-0.5f, 0.5f);         // 300px picture shown at 150px
 
-   const int MAX_SPARKS = 200;      // most sparkles that can be alive at once
-    Spark sparks[MAX_SPARKS];
-    int sparkCount = 0;
     Clock frameClock;
-    float sparkTimer = 0.f;
     float totalTime = 0.f;
     bool mouseInside = false;
+
 
 
 
@@ -2252,7 +2197,7 @@ if (!slBody.empty())                             removeLast(slBody);
                 }
             }
         }
-        // updation (Memory Number timer + hover sound + wand sparkles)
+        // updation (Memory Number timer + hover sound )
 
 
         if (screen == 5 && memPhase == 0 && memClock.getElapsedTime().asSeconds() >= 5.0f)
@@ -2267,62 +2212,11 @@ if (!slBody.empty())                             removeLast(slBody);
             hoverSound.play();
 
         lastHover = hoverNow;
-
-        // soft sparkle sound while the wand is moving
-        sparkleSoundTimer += dt;
-
-        float moveX = mouse.x - prevMouse.x;
-        float moveY = mouse.y - prevMouse.y;
-
-        if (sparkleOK && mouseInside && sparkleSoundTimer > 0.35f &&
-            (moveX * moveX + moveY * moveY) > 16.f)
-        {
-            sparkleSound[nextSparkleSound].setVolume(SPARKLE_VOLUME);
-            sparkleSound[nextSparkleSound].setPitch(0.85f + (rand() % 50) / 100.f);   // a little different each time
-            sparkleSound[nextSparkleSound].play();
-
-            nextSparkleSound = (nextSparkleSound + 1) % 4;
-            sparkleSoundTimer = 0.f;
-        }
-
         prevMouse = mouse;
 
-        if (mouseInside)
-        {
-            sparkTimer += dt;
+        
 
-            while (sparkTimer > 0.025f)
-            {
-                sparkTimer -= 0.025f;
-
-                Spark s;
-                s.pos = mouse + Vector2f((float)(rand() % 9 - 4), (float)(rand() % 9 - 4));
-                s.vel = Vector2f((float)(rand() % 50 - 25), (float)(rand() % 40 - 10));
-                s.maxLife = 0.45f + (rand() % 20) / 100.f;
-                s.life = s.maxLife;
-                s.size = 3.f + (rand() % 40) / 10.f;
-                s.rot = (rand() % 100) / 50.f;
-
-                if (sparkCount < MAX_SPARKS)
-                {
-                    sparks[sparkCount] = s;
-                    sparkCount++;
-                }
-            }
-        }
-
-        for (int i = 0; i < sparkCount; i++)
-        {
-            sparks[i].life -= dt;
-            sparks[i].pos += sparks[i].vel * dt;
-            sparks[i].vel.y += 40.f * dt;// drifts down slowly
-        }
-
-        for (int i = sparkCount - 1; i >= 0; i--)
-        {
-            if (sparks[i].life <= 0.f)
-                removeSpark(sparks, sparkCount, i);
-        }
+      
 
         // DRAWING
 
@@ -2691,20 +2585,12 @@ string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
-        // WAND CURSOR 
         if (mouseInside)
         {
-             for (int i = 0; i < sparkCount; i++)
-            {
-                float k = sparks[i].life / sparks[i].maxLife;     // 1 -> 0
-                Color c(255, 225, 140, (Uint8)(255 * k));
-
-                drawStar(window, sparks[i].pos, sparks[i].size * (0.4f + 0.6f * k),
-                    c, sparks[i].rot + totalTime * 2.f);
-            }
             wand.setPosition(mouse);
             window.draw(wand);
         }
+
         window.display();
     }
     return 0;
