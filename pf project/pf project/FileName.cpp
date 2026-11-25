@@ -394,9 +394,9 @@ void saveLetter(const string& pin, const string& text)
 // glowing of button
 
 
-const int GLOW_REACH = 22;            // room around the button for the glow (pixels)
-const int GLOW_BLUR = 7;              // how far the light spreads 
-const float GLOW_STRENGTH = 150.f;    // brightness of the glow, 0 to 255 
+const int GLOW_REACH = 22;            // Sspcr aroound the button for light
+const int GLOW_BLUR = 7;              // HOWMUCH LIGHT SPREADS
+const float GLOW_STRENGTH = 150.f;    // brightness of the glow 
 
 // Blurs a grid of numbers between 0 and 1 (used once to build each glow picture)
 void blurGrid(float* g, int W, int H, int r)
@@ -537,30 +537,30 @@ Texture& getGlowTexture(Texture& tex, float w, float h)
     return cacheTex[slot];
 }
 
-// Buttons grow a little and glow when the mouse is over them
+// Buttons grow a little and glow when the mouse is over them // GLOWING EFFECT FUNCTION
 void drawButton(RenderWindow& window, RectangleShape& box, Texture& tex, Vector2f mouse)
 {
     Sprite s(tex);
-
     float w = box.getSize().x;
     float h = box.getSize().y;
-
+    
     float sx = w / tex.getSize().x;
     float sy = h / tex.getSize().y;
 
-    if (box.getGlobalBounds().contains(mouse))
+    if (box.getGlobalBounds().contains(mouse)) // CHECKS IF MOUSE CORDINATES ARE INSIDE BUTTON
     {
-        // thin light around the edges only added on top of the background
-        Sprite glow(getGlowTexture(tex, w, h));
+        // thin light around the edges 
+        Sprite glow(getGlowTexture(tex, w, h)); // CREATES GLOW
         glow.setPosition(box.getPosition().x - w * 0.03f - GLOW_REACH,
             box.getPosition().y - h * 0.03f - GLOW_REACH);
-        window.draw(glow, RenderStates(BlendAdd));
+        
+        window.draw(glow, RenderStates(BlendAdd)); // DRAWS GLOW
+                                                   // BLEND ADD ( makes light blend with whats alr on scree)
 
-        s.setScale(sx * 1.06f, sy * 1.06f);
-        s.setPosition(box.getPosition().x - w * 0.03f,
-            box.getPosition().y - h * 0.03f);
+        s.setScale(sx * 1.06f, sy * 1.06f); // making button slightly bigger  6 prce
+        s.setPosition(box.getPosition().x - w * 0.03f, box.getPosition().y - h * 0.03f);
     }
-    else
+    else // normal size  normal ps no glow
     {
         s.setScale(sx, sy);
         s.setPosition(box.getPosition());
@@ -609,7 +609,7 @@ string makePairs(string s)
 
 const int GRID = 8;   // number of boxes per row and per column
 
-// The 3 emoji pictures. '#' = colored square, '.' = empty
+// The 3 emoji pictures '#' = colored square, '.' = empty
 const char* pictures[3][GRID] = {
     { // Smiley
       "..####..",
@@ -662,14 +662,11 @@ int main()
     window.setMouseCursorVisible(false);      // the wand is the cursor
 
     srand((unsigned)time(0));
-
-
     // The game always thinks in 1000x600. When the window is maximized,
-    // the view keeps the same shape (black bars if needed), and
+    // the view keeps the same shape, and
     // mapPixelToCoords turns real mouse positions into game positions
     View view(FloatRect(0.f, 0.f, 1000.f, 600.f));
     window.setView(view);
-
     auto fixView = [&](unsigned winW, unsigned winH)
         {
             float windowRatio = (float)winW / (float)winH;
@@ -755,7 +752,8 @@ int main()
     {
         lockedTex.setSmooth(true);
         setBackground(lockedBg, lockedTex);
-    }     else
+    }    
+    else
     {
         setBackground(lockedBg, menuTex);
     }
@@ -765,9 +763,12 @@ int main()
     // Quiz pictures
     Texture hatTex, hatGlowTex, wandTex;
 
-    if (!hatTex.loadFromFile("hat.png")) return -1;
-    if (!hatGlowTex.loadFromFile("hat_glow.png")) return -1;
-    if (!wandTex.loadFromFile("wand.png")) return -1;
+    if (!hatTex.loadFromFile("hat.png")) 
+        return -1;
+    if (!hatGlowTex.loadFromFile("hat_glow.png")) 
+        return -1;
+    if (!wandTex.loadFromFile("wand.png")) 
+        return -1;
 
     hatTex.setSmooth(true);
     hatGlowTex.setSmooth(true);
@@ -775,12 +776,11 @@ int main()
 
     // houses: 0 = Gryffindor, 1 = Slytherin, 2 = Ravenclaw, 3 = Hufflepuff
     string houseFile[4] = { "gryffindor", "slytherin", "ravenclaw", "hufflepuff" };
-
     Texture crestBig[4];
-
     for (int i = 0; i < 4; i++)
     {
-        if (!crestBig[i].loadFromFile("crest_" + houseFile[i] + ".png")) return -1;
+        if (!crestBig[i].loadFromFile("crest_" + houseFile[i] + ".png")) 
+            return -1;
 
         crestBig[i].setSmooth(true);
     }
@@ -800,13 +800,10 @@ int main()
     {
         clickSound.setBuffer(clickBuf);
         hoverSound.setBuffer(hoverBuf);
-
         clickSound.setVolume(CLICK_VOLUME);
         hoverSound.setVolume(HOVER_VOLUME);
     }
-
     int lastHover = 0;      // which button the mouse was over in the last frame
-    
     Vector2f prevMouse(0.f, 0.f);
 
 
@@ -818,7 +815,7 @@ int main()
     Text tBack("", buttonFont, 22);
 
 
-    // scree numbers
+    // screen numbers
     // 0 = Main Menu
     // 1 = Game Hub
     // 2 = House Quiz
@@ -851,7 +848,7 @@ int main()
 
     Sprite wand(wandTex);
     wand.setOrigin(297.f, 1.f);        // the tip of the wand (top right of the picture)
-    wand.setScale(-0.5f, 0.5f);         // 300px picture shown at 150px
+    wand.setScale(-0.5f, 0.5f);         
 
     Clock frameClock;
     float totalTime = 0.f;
@@ -864,7 +861,6 @@ int main()
 
 
     const int TOTAL_Q = 10;
-
     string houseNames[4] = { "Gryffindor", "Slytherin", "Ravenclaw", "Hufflepuff" };
 
     string houseDesc[4] =
@@ -1279,11 +1275,10 @@ int main()
         };
 
     // game guess the word vriables
-
-    string word = "";
-    string hidden = "";
+    string word = ""; // real secret word
+    string hidden = ""; // word shown to user
     string used = "";
-    string guessMessage = "";
+    string guessMessage = ""; // msg show to player
 
     int chances = 5;
     bool won = false;
@@ -1308,7 +1303,7 @@ int main()
         "dumbledore", "bellatrix", "horcrux", "hagrid", "dobby"
     };
 
-    string guessReveal[10] =
+    string guessReveal[10] = // ts array stores which leters should be visible
     {
         "hw", "ler", "hfo", "ubd", "zn",
         "ul", "bax", "hc", "hg", "oy"
