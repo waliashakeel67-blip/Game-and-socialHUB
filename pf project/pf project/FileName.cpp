@@ -1825,7 +1825,22 @@ scroll
             else if (screen == 3)
             {
                 if (isClicked(back, p)) return 4;
+ 
+                if (letterMode == 0)
+                {
+                    if (wonGuess && wonMemory && wonDrawing && isClicked(b1, p)) return 1;
+                    if (!(wonGuess && wonMemory && wonDrawing) && isClicked(b2, p)) return 2;
+                }
+                else if ((letterMode == 1 || letterMode == 2) && isClicked(b1, p))
+                {
+                    return 1;
+                }
+                else if (letterMode == 1 && isClicked(b2, p))
+                {
+                    return 2;
+                }
             }
+
             else if (screen == 6)
             {
                 if (isClicked(back, p)) return 4;
