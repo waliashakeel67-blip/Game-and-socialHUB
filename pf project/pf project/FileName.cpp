@@ -1610,9 +1610,12 @@ auto layoutDrawingButtons = [&]()
             return 1;
         };
     // ---------- SECRET LETTERS variables ----------
-    // letterMode: 0 = menu, 1 = writing, 2 = choosing the PIN, 3 = saved,     //             4 = typing a PIN to read a letter, 5 = reading a letter
+    // letterMode: 0 = menu, 1 = writing, 2 = choosing the PIN, 3 = saved,
+    //             4 = typing a PIN to read a letter, 5 = reading a letter
     int letterMode = 0;
-    string slBody = "";     // the letter being written     string slPin = "";      // the PIN being typed     string slMsg = "";      // small message
+    string slBody = "";     // the letter being written
+    string slPin = "";      // the PIN being typed
+    string slMsg = "";      // small message
     string slShown = "";    // the letter being read
  
     Text slText("", bodyFont, 22);
@@ -1620,19 +1623,19 @@ auto layoutDrawingButtons = [&]()
     Text slBig("", buttonFont, 50);
  
     slText.setFillColor(Color(70, 40, 15));         // dark ink, because it is written on a scroll
-    slLabel.setFillColor(Color(70, 40, 15));        // dark ink, written on the scroll     slBig.setFillColor(Color(110, 30, 30));         // dark red ink for the PIN
+    slLabel.setFillColor(Color(70, 40, 15));        // dark ink, written on the scroll
+    slBig.setFillColor(Color(110, 30, 30));         // dark red ink for the PIN
  
-    Text slSmall("", bodyFont, 20);                 // small dark text (letter counter / messages) on the 
-scroll
+    Text slSmall("", bodyFont, 20);                 // small dark text (letter counter / messages) on the scroll
     slSmall.setFillColor(Color(90, 50, 20));
  
     // where the letter is written on the scroll picture
-    // (change these numbers until the text fits your scroll; the picture is 1000 x 600)
-    const float SCROLL_X = 230.f;       // left edge of the writing area     const float SCROLL_Y = 150.f;       // top edge of the writing area
+    const float SCROLL_X = 230.f;       // left edge of the writing area
+    const float SCROLL_Y = 150.f;       // top edge of the writing area
     const float SCROLL_W = 520.f;       // width of the writing area (long lines wrap at this width)
-    const float SCROLL_H = 290.f;       // height of the writing area     const int SCROLL_FONT = 22;         // size of the letter text
- 
- 
+    const float SCROLL_H = 290.f;       // height of the writing area
+    const int SCROLL_FONT = 22;         // size of the letter text
+
     // Places the buttons for the letter mode that is showing
     auto layoutLetterScreen = [&]()
         {
