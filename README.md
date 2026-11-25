@@ -86,7 +86,7 @@ Walia, Ayesha and Sarmad
 - Title font: Harry P (free fan-made font)
 - Button font: Cinzel Decorative Bold by Natanael Gama (Google Fonts, SIL Open Font License)
 - Body font: Cormorant Garamond Bold by Christian Thalmann (Google Fonts, SIL Open Font License)
-- Backgrounds and images: designed in Canva, using images found on [Pinterest](https://www.pinterest.com/) (edited and cropped). All images belong to their original owners.
+- Backgrounds and images: designed by our team in Canva, using images found on [Pinterest](https://www.pinterest.com/) (edited and cropped). All images belong to their original owners.
 - Made with [SFML](https://www.sfml-dev.org/)
-- Harry Potter is owned by its respective owners. This is a fan-made student project, not for sale.
+- Harry Potter is owned by its respective owners. This is a student project.
 -
