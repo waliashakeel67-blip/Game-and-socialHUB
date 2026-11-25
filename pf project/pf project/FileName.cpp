@@ -2329,17 +2329,16 @@ if (!slBody.empty())                             removeLast(slBody);
        window.clear();
  
         // writing and reading a letter use the scroll picture, everything else the normal background
-      
- 
+        bool allWonNow = wonGuess && wonMemory && wonDrawing;
+        bool onScroll = (screen == 3 && scrollOK && letterMode != 0);
+        bool onLocked = (screen == 3 && letterMode == 0 && !allWonNow);
+
         if (onScroll)
             window.draw(scrollBg);          // writing, PIN and reading screens
         else if (onLocked)
             window.draw(lockedBg);          // menu while the 3 games are not all won
-       else
+        else
             window.draw(background);        // menu when unlocked = letters.png
-        bool allWonNow = wonGuess && wonMemory && wonDrawing;
-        bool onScroll = (screen == 3 && scrollOK && letterMode != 0);
-        bool onLocked = (screen == 3 && letterMode == 0 && !allWonNow);
 
 
         if (screen == 0)
