@@ -1,6 +1,10 @@
- # Game & Social Hub
+# ✨ Game & Social Hub ✨
 
-A C++ game made with SFML. It has a Hogwarts theme, with a magic wand as the mouse cursor.
+> Pick up your wand and step into a magical world made with C++ and SFML.
+
+Your mouse is a **glowing wand** that leaves a trail of sparkles wherever you go. Win three magical mini games, let the **Sorting Hat** decide your Hogwarts house, and write a **secret letter** locked with a 4-digit PIN that only your friend can open.
+
+Sparkling wand cursor | 🎩 Sorting Hat house quiz | 🔮 3 mini games | 💌 Secret letters | 🎶 Magical music
 
 ## Features
 - **Game Hub** with three games:
@@ -26,5 +30,14 @@ A C++ game made with SFML. It has a Hogwarts theme, with a magic wand as the mou
 Walia, Ayesha and Sarmad
 
 ## Credits
+- UI sounds: Micro Sound UI Vol. 1 by Effe Tei (itch.io)
+- Music: (pixabey)
+- Title font: Harry P (free fan-made font)
+- Button font: Cinzel Decorative Bold by Natanael Gama (Google Fonts, SIL Open Font License)
+- Body font: Cormorant Garamond Bold by Christian Thalmann (Google Fonts, SIL Open Font License)
+- Made with [SFML](https://www.sfml-dev.org/)
+- Harry Potter is owned by its respective owners. This is a student project
+- Images: (https://www.pinterest.com/)
+- Designing: (https://www.canva.com/)
 - UI sounds: Micro Sound UI Vol. 1 by Effe Tei
 - Music: (write the name and source of your music here)
