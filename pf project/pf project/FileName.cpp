@@ -2251,6 +2251,55 @@ scroll
                 }
             }
 
+// keyboard part of secret letters
+            if (screen == 3 && event.type == Event::TextEntered)
+            {
+                int c = event.text.unicode;
+ 
+                if (letterMode == 1)
+                {
+                    if (c == 8)     // Backspace
+                    {
+if (!slBody.empty())                             removeLast(slBody);
+                    }
+                    else if (c == 13 || c == 10)    // Enter = new line (at most 6 new lines)
+                    {
+                        int lines = 0;
+ 
+                        for (int i = 0; i < (int)slBody.length(); i++)
+                        {
+                            if (slBody[i] == '\n')
+                                lines++;
+                        }
+ 
+                        if (lines < 6 && (int)slBody.length() < MAX_LETTER)
+                            slBody += '\n';
+                    }
+                    else if (c >= 32 && c < 127 && (int)slBody.length() < MAX_LETTER)
+                    {
+                        slBody += (char)c;
+                    }
+                }
+                else if (letterMode == 2 || letterMode == 4)
+                {
+                    if (c == 8)     // Backspace
+                    {
+                        if (!slPin.empty())                             removeLast(slPin);
+                    }
+                    else if (c >= '0' && c <= '9' && (int)slPin.length() < 4)
+                    {
+                        slPin += (char)c;
+ 
+                        // reading: the letter opens by itself when the 4th digit is typed
+                        if (letterMode == 4 && (int)slPin.length() == 4)
+                            tryOpenLetter();
+                    }
+                    else if ((c == 13 || c == 10) && letterMode == 2)   // Enter = save
+                    {
+                        trySaveLetter();
+                    }
+                }
+            }
 
             //keyboard part of drawing recreation 
             if (screen == 6 && event.type == Event::TextEntered)
