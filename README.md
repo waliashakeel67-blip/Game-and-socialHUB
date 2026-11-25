@@ -38,6 +38,5 @@ Walia, Ayesha and Sarmad
 - Made with [SFML](https://www.sfml-dev.org/)
 - Harry Potter is owned by its respective owners. This is a student project
 - Images: (https://www.pinterest.com/)
-- Designing: (https://www.canva.com/)
-- UI sounds: Micro Sound UI Vol. 1 by Effe Tei
+- UI sounds: Micro Sound UI Vol. 1  Effe Tei
 - Music: (write the name and source of your music here)
