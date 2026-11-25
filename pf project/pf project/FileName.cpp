@@ -2542,33 +2542,95 @@ if (!slBody.empty())                             removeLast(slBody);
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
-        else if (screen == 3)
+       else if (screen == 3)
         {
-            window.draw(heading);
-
-            int winsCount = 0;
-            if (wonGuess)   winsCount++;
-            if (wonMemory)  winsCount++;
-            if (wonDrawing) winsCount++;
-
-            if (winsCount == 3)
+            if (!onScroll && !(letterMode == 0 && allWonNow))
+                window.draw(heading);
+ 
+            bool allWon = wonGuess && wonMemory && wonDrawing;
+ 
+            int winsCount = 0;             if (wonGuess)   winsCount++;             if (wonMemory)  winsCount++;             if (wonDrawing) winsCount++;
+// small helper: writes one line of text in the middle of the screen
+            auto say = [&](Text& t, const string& words, float y)
+                {
+                    t.setString(words);                     centerText(t, y);                     window.draw(t);
+                };
+ 
+            if (letterMode == 0)
             {
-                lockMsg.setString("You can now write a secret letter.");
+                // menu: write (locked until 3 wins) + read (always open)
+                drawButton(window, b1, btnTex, mouse);
+                window.draw(t1);
+ 
+                if (!allWon)
+                {
+                    drawButton(window, b2, btnTex, mouse);
+                    window.draw(t2);
+say(lockMsg, "You can't write a letter yet. Win all 3 games!", 395);                     say(lockCount, "Games won: " + intToString(winsCount) + " / 3", 435);
+                }
             }
-            else
+            else if (letterMode == 1)
             {
-                lockMsg.setString("Locked! Win all 3 games to unlock.");
+                // writing the letter, directly on the scroll
+string cursor = (((int)(totalTime * 2.f)) % 2 == 0) ? "_" : "";
+ 
+                slText.setCharacterSize(SCROLL_FONT);
+                slText.setString(wrapParagraphs(slBody + cursor, bodyFont, SCROLL_FONT, SCROLL_W));
+                placeText(slText, SCROLL_X, SCROLL_Y);
+                window.draw(slText);
+ 
+                // letter counter and message, just under the writing area
+                say(slSmall, intToString((int)slBody.length()) + " / " + intToString(MAX_LETTER) + "     " 
++ slMsg, SCROLL_Y + SCROLL_H + 6.f);
+ 
+                drawButton(window, b1, btnTex, mouse);
+                window.draw(t1);
+ 
+                drawButton(window, b2, btnTex, mouse);
+                window.draw(t2);
             }
-
-            centerText(lockMsg, 230);
-            window.draw(lockMsg);  
-            lockCount.setString("Games won: " + intToString(winsCount) + " / 3");
-            centerText(lockCount, 290);
-            window.draw(lockCount);
-
+            else if (letterMode == 2 || letterMode == 4)
+            {
+                // typing a PIN (to save a letter, or to read one)
+                if (letterMode == 2)
+                    say(slLabel, "Choose a 4-digit PIN for your letter", 150);
+                else
+                    say(slLabel, "Enter the 4-digit PIN from your friend", 150);
+ 
+                string shownPin = slPin;
+ 
+                while ((int)shownPin.length() < 4)
+                    shownPin += '_';
+ 
+                say(slBig, spaced(shownPin), 230);
+                say(slLabel, slMsg, 340);
+ 
+                if (letterMode == 2)
+                {
+                    say(slLabel, "Tell this PIN to your friend so they can open it", 400);
+ 
+                    drawButton(window, b1, btnTex, mouse);
+                    window.draw(t1);
+                }
+            }
+            else if (letterMode == 3)
+            {
+                // saved
+                say(slLabel, slMsg, 200);
+                say(slLabel, "Tell this PIN to your friend.", 270);
+            }
+            else if (letterMode == 5)
+            {
+                // reading a letter, directly on the scroll                 slText.setCharacterSize(SCROLL_FONT);
+                slText.setString(wrapParagraphs(slShown, bodyFont, SCROLL_FONT, SCROLL_W));
+                placeText(slText, SCROLL_X, SCROLL_Y);
+                window.draw(slText);
+            }
+ 
             drawButton(window, back, btnTex, mouse);
             window.draw(tBack);
         }
+
         else if (screen == 4)
         {
             window.draw(heading);
