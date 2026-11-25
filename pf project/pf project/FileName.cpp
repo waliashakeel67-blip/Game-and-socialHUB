@@ -1675,6 +1675,115 @@ auto layoutDrawingButtons = [&]()
 
             return 1;
         };
+    // ---------- SECRET LETTERS variables ----------
+    // letterMode: 0 = menu, 1 = writing, 2 = choosing the PIN, 3 = saved,     //             4 = typing a PIN to read a letter, 5 = reading a letter
+    int letterMode = 0;
+    string slBody = "";     // the letter being written     string slPin = "";      // the PIN being typed     string slMsg = "";      // small message
+    string slShown = "";    // the letter being read
+ 
+    Text slText("", bodyFont, 22);
+    Text slLabel("", buttonFont, 28);
+    Text slBig("", buttonFont, 50);
+ 
+    slText.setFillColor(Color(70, 40, 15));         // dark ink, because it is written on a scroll
+    slLabel.setFillColor(Color(70, 40, 15));        // dark ink, written on the scroll     slBig.setFillColor(Color(110, 30, 30));         // dark red ink for the PIN
+ 
+    Text slSmall("", bodyFont, 20);                 // small dark text (letter counter / messages) on the 
+scroll
+    slSmall.setFillColor(Color(90, 50, 20));
+ 
+    // where the letter is written on the scroll picture
+    // (change these numbers until the text fits your scroll; the picture is 1000 x 600)
+    const float SCROLL_X = 230.f;       // left edge of the writing area     const float SCROLL_Y = 150.f;       // top edge of the writing area
+    const float SCROLL_W = 520.f;       // width of the writing area (long lines wrap at this width)
+    const float SCROLL_H = 290.f;       // height of the writing area     const int SCROLL_FONT = 22;         // size of the letter text
+ 
+ 
+    // Places the buttons for the letter mode that is showing
+    auto layoutLetterScreen = [&]()
+        {
+            bool allWon = wonGuess && wonMemory && wonDrawing;
+ 
+            if (letterMode == 0 && allWon)
+            {
+                // unlocked: the letter picture fills the screen, so there are only 2 buttons at the bottom:
+                // Back (left) and Next: Write Letter (right)
+                setSmallButton(back, tBack, "Back", 240, 505, 240, 62, 20);
+                setSmallButton(b1, t1, "Next: Write Letter", 520, 505, 240, 62, 20);
+            }
+            else if (letterMode == 0)
+            {
+                // locked
+                setButton(b1, t1, "Writing Locked", 300, 190);                 setButton(b2, t2, "Read a Friend's Letter", 300, 290);
+                setButton(back, tBack, "Back", 310, 495);
+            }             else
+            {
+                if (letterMode == 1)
+                {
+                    // writing: Next + Read a Friend's Letter + Cancel
+                    setSmallButton(b1, t1, "Next: Set PIN", 40, 505, 270, 62, 20);
+                    setSmallButton(b2, t2, "Read a Friend's Letter", 330, 505, 330, 62, 20);
+                }
+ 
+               if (letterMode == 2)
+                    setSmallButton(b1, t1, "Save Letter", 190, 505, 280, 62, 20);
+ 
+                string label = "Close";
+ 
+                if (letterMode == 1 || letterMode == 4)
+                    label = "Cancel";            
+                else if (letterMode == 2)                     label = "Back";              
+                else if (letterMode == 3)                     label = "Done";
+                if (letterMode == 1)
+                    setSmallButton(back, tBack, label, 680, 505, 280, 62, 20);
+                else if (letterMode == 2)
+                    setSmallButton(back, tBack, label, 510, 505, 280, 62, 20);
+                else
+                    setSmallButton(back, tBack, label, 350, 505, 280, 62, 20);
+            }
+        };
+ 
+ 
+    // Saves the letter with the chosen PIN (if the PIN is not already used)
+    auto trySaveLetter = [&]()
+        {
+            if ((int)slPin.length() < 4)
+            {
+                slMsg = "The PIN needs 4 digits";
+            }
+            else if (pinExists(slPin))
+            {
+                slMsg = "That PIN is already used. Pick another one.";
+                slPin = "";
+            }             
+            else
+            {
+                saveLetter(slPin, slBody);
+                slMsg = "Letter saved! Your PIN is " + slPin;
+                letterMode = 3;                 layoutLetterScreen();
+            }
+        };
+ 
+ 
+    // Opens the letter that belongs to the typed PIN
+    auto tryOpenLetter = [&]()
+        {
+            string txt;
+ 
+            if (loadLetter(slPin, txt))
+            {
+                slShown = txt;                 
+                slMsg = "";                 letterMode = 5;
+            }             else
+            {
+                slMsg = "No letter found for that PIN";
+                slPin = "";
+            }
+ 
+            layoutLetterScreen();
+        };
+
+
 
     // Tells which button (if any) is under the point p used for the button sounds
     // 0 = nothing, 1 = b1, 2 = b2, 3 = b3, 4 = back, 10 = Sorting Hat, 20-23 = quiz answers
