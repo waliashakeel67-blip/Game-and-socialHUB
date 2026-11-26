@@ -1036,7 +1036,7 @@ int main()
 
     // which house each option gives a point to
     // 0 = Gryffindor, 1 = Slytherin, 2 = Ravenclaw, 3 = Hufflepuff
-    int optHouse[TOTAL_Q][4] =
+    int optHouse[TOTAL_Q][4] = // tells which house belongs to each answer
     {
         { 0, 2, 3, 1 },
         { 2, 3, 0, 1 },
@@ -1090,7 +1090,7 @@ int main()
     letterText.setFillColor(Color(120, 65, 25));
 
 
-    float barFill = 0.f;      // 0.0 to 1.0
+    float barFill = 0.f;      // 0.0 to 1.0 (after q1 0.0 t 0.1 ) stores how much of quiz progress bar should be filled
 
     // Result page texts
     Text resSmall("You belong to...", bodyFont, 26);
@@ -1180,7 +1180,7 @@ int main()
                 fitText(quizTitle, TITLE_MAXW, TITLE_SIZE, 22);
                 quizTitle2.setCharacterSize(quizTitle.getCharacterSize());
 
-                float lineH = quizTitle.getCharacterSize() * 1.12f;
+                float lineH = quizTitle.getCharacterSize() * 1.12f; // CALCULTE VERTICA SPACE BETWEE TWO TITLE LINES
                 centerAt(quizTitle, START_CX, TITLE_Y);
                 centerAt(quizTitle2, START_CX, TITLE_Y + lineH);
 
@@ -1231,7 +1231,7 @@ int main()
             FloatRect pb = quizPercent.getLocalBounds();
             quizPercent.setPosition(PERCENT_RIGHT - pb.width - pb.left, INFO_Y - pb.top);
 
-            barFill = (float)(qIndex + 1) / (float)TOTAL_Q;
+            barFill = (float)(qIndex + 1) / (float)TOTAL_Q; // percentage indicator showing how far the player has progrsses
 
             quizQuestion.setCharacterSize(Q_SIZE);
             quizQuestion.setString(wrapText(questions[qIndex], bodyFont, Q_SIZE, Q_W));
@@ -1245,8 +1245,8 @@ int main()
                 float rowX = (col == 0) ? ROW_X0 : ROW_X1;
                 float rowY = ROW_Y + row * ROW_STEP;
 
-                opt[i].setSize(Vector2f(ROW_W, ROW_H));
-                opt[i].setPosition(rowX, rowY);
+                opt[i].setSize(Vector2f(ROW_W, ROW_H)); // answer button dimennsions
+                opt[i].setPosition(rowX, rowY); // where each annswer butto should appear
 
                 fitAnswer(optText[i], options[qIndex][i], bodyFont, ROW_W - 66.f, ROW_H - 8.f);
 
@@ -1627,13 +1627,18 @@ int main()
 
     // secret letters variables
     // 
-    // letterMode: 0 = menu, 1 = writing, 2 = choosing the PIN, 3 = saved,
-    //             4 = typing a PIN to read a letter, 5 = reading a letter
+    // letterMode(variable to keep track which stage of secret letter it is): 
+    //0 = menu
+    //1 = writing
+    //2 = choosing the PIN
+    //3 = saved
+    //4 = typing a PIN to read a letter
+    //5 = reading a letter
     int letterMode = 0;
-    string slBody = "";     // the letter being written
-    string slPin = "";      // the PIN being typed
+    string slBody = "";     // stores the letter player is writing
+    string slPin = "";      // stores the PIN being typed
     string slMsg = "";      // small message
-    string slShown = "";    // the letter being read
+    string slShown = "";    // the letter being displayed for reading
 
     Text slText("", bodyFont, 22);
     Text slLabel("", buttonFont, 28);
@@ -2216,7 +2221,7 @@ int main()
             {
                 int c = event.text.unicode;
 
-                if (letterMode == 1)
+                if (letterMode == 1) // writing the letter
                 {
                     if (c == 8)     // Backspace
                     {
@@ -2226,13 +2231,11 @@ int main()
                     else if (c == 13 || c == 10)    // Enter = new line (at most 6 new lines)
                     {
                         int lines = 0;
-
                         for (int i = 0; i < (int)slBody.length(); i++)
                         {
-                            if (slBody[i] == '\n')
+                            if (slBody[i] == '\n') // how many new lines are alr in the letter
                                 lines++;
                         }
-
                         if (lines < 6 && (int)slBody.length() < MAX_LETTER)
                             slBody += '\n';
                     }
